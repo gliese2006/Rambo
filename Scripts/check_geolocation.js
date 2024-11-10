@@ -6,6 +6,7 @@ function dom (c) {
 const code = window.location.pathname.split('/check_geolocation/')[1];
 const search = new URLSearchParams(window.location.search);
 const id = Number(search.get('id'));
+const stat = search.get('status');
 const task = search.get('task');
 
 const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}`);
@@ -14,14 +15,14 @@ let playerMarkersLayer, coordinates, center, map, checkZone;
 
 
 //check status
-if (search.get('status')) {
+if (stat) {
     document.getElementById('buttons').remove();
     document.getElementById('messages').remove();
 };
 
 //send geolocation
 if (document.getElementById('buttons')) {
-if (id !== 0) {
+if (id !== 0 && !stat) {
     alert('To play this game, this website needs to locate you. Please permit geolocation.');
 };
 };
@@ -31,12 +32,12 @@ setInterval(() => {
     function scb (position) {
         coordinates = [position.coords.latitude, position.coords.longitude];
 
-        xhr.open('POST', `/send_coordinates/${code}?id=${id}`, false);
+        xhr.open('POST', `/send_coordinates/${code}?id=${id}&place=check_geolocation`, false);
         xhr.setRequestHeader('Content-type', 'application/json');
         const data = JSON.stringify({coordinates});
         xhr.send(data);
         if (document.getElementById('buttons')) {
-        dom('.display-geolocation-message').innerHTML = '<p> Geolocation successful! Please check whether your real position matches the one on the map. </p>'
+        dom('.display-geolocation-message').innerHTML = '<p> Geolocation successful! Please check whether your real position matches the one on the map.</p>'
         };
     };
 
@@ -51,7 +52,7 @@ setInterval(() => {
 xhr.open('GET', `/display_map/${code}`, false);
 xhr.send();
 if (xhr.status === 500) {
-    document.body.innerHTML = '<p> Host canceled game! </p>'
+    document.body.innerHTML = 'Game is not running anymore.'
     setTimeout(() => {
         window.location.replace('http://localhost:8000/');
     }, 2000);
@@ -82,22 +83,22 @@ const startingArea = L.circle(center, {
 }).addTo(map);
 
 //display players
-sse.onmessage = (response) => {
-    console.log(response);
-    if (JSON.parse(response.data) === 'canceled') {
+sse.onmessage = (res) => {
+    const response = JSON.parse(res.data);
+    if (response === 'canceled') {
         document.body.innerHTML = '<p> Host canceled game! </p>'
         sse.close();
         setTimeout(() => {
             window.location.replace('http://localhost:8000/');
         }, 2000);
-    } else if (JSON.parse(response.data).exit) {
-        alert(`${JSON.parse(response.data).exit} exited the game.`);
-    } else if (JSON.parse(response.data) === 'ready') {
+    } else if (response.exit) {
+        alert(`${response.exit} exited the game.`);
+    } else if (response === 'ready') {
         console.log('ready');
         window.location.replace(`http://localhost:8000/play/${code}?id=${id}&task=${task}`);
         sse.close();
     } else {
-        const players = JSON.parse(response.data);
+        const players = response.players;
 
         if (playerMarkersLayer) {
             console.log(playerMarkersLayer);

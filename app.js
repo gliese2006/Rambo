@@ -105,25 +105,37 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 //request on play
     app.get('/get_geolocations/:code', (req, res) => {
         const code = req.params.code;
-        let countIntervals = 0;
+        let firstTimeUpdate = false;
         let gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        
+        play.on(`countTime/${code}`, (countSec) => {
+            if (!firstTimeUpdate) {
+                res.write("data: " + `${JSON.stringify({players: undefined, update: countSec * 1000})}\n\n`);
+                firstTimeUpdate = true;
+
+                if (gamejson.checkSeekersReady) {
+                    res.write("data: " + `${JSON.stringify({checkSeekersReady: 'Y'})}\n\n`);
+                } else {
+                    res.write("data: " + `${JSON.stringify({checkSeekersReady: 'N'})}\n\n`);
+                };
+            };
+        });
+
         newCoordinates.on(`reread/${code}`, () => {
             gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
         });
         let readyList = [];
         res.setHeader('Content-type', 'text/event-stream');
-        newCoordinates.on(`new_coordinates/${code}`, (coordinates, id, runawayUpdate) => {
-            let response;
-            if (req.query.task === 'runaway') {
-                response = geolocationmodule.saveCoordinates(gamejson, id, coordinates);
-            } else if (req.query.task === 'seeker') {
-                if (runawayUpdate) {
-                    response = geolocationmodule.saveCoordinates(gamejson, id, coordinates);
-                } else {
-                    response = geolocationmodule.findSeekers(geolocationmodule.saveCoordinates(gamejson, id, coordinates));
-                }
+        newCoordinates.on(`new_coordinates/${code}`, (coordinates, id, update) => {
+            let players;
+            if (id) {
+                if (update || req.query.task === 'runaway') {
+                    players = geolocationmodule.saveCoordinates(gamejson, id, coordinates);
+                } else if (req.query.task === 'seeker') {
+                    players = geolocationmodule.findSeekers(geolocationmodule.saveCoordinates(gamejson, id, coordinates));
+                };
             };
-            res.write("data: " + `${JSON.stringify(response)}\n\n`);
+            res.write("data: " + `${JSON.stringify({players, update})}\n\n`);
         });
         newCoordinates.on(`ready/${code}`, (id) => {
             if (id) {
@@ -146,9 +158,11 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                 //res.write("data: " + `${JSON.stringify({exit: username})}\n\n`);
             };
         });
-        play.on(`timeUpdate/${code}`, () => {
-            countIntervals ++;
-            res.write("data: " + `${JSON.stringify({timeUpdate: countIntervals*300000})}\n\n`);
+        play.on(`seekersReady/${code}`, () => {
+            res.write("data: " + `${JSON.stringify({checkSeekersReady: 'Y'})}\n\n`);
+            gamejson.checkSeekersReady = true;
+            fs.writeFileSync(`./current_games/${code}`, JSON.stringify(gamejson));
+            newCoordinates.emit(`reread/${code}`);
         });
         play.on(`gameOver/${code}`, () => {
             res.write("data: " + `${JSON.stringify({gameover: 'Time is up.'})}\n\n`);
@@ -392,40 +406,59 @@ app.get('/cancel/:code', (req, res) => {
         res.end(playjs);
     });
 
-    app.get('/test.mjs', (req, res) => {
-        res.end(testjs);
-    });
-
     app.post('/send_coordinates/:code', (req, res) => {
         const code = req.params.code;
         const id = Number(req.query.id);
+        const place = req.query.place;
         const coordinates = req.body.coordinates;
-        newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, false);
+        if (place === 'check_geolocation') {
+            newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, true);
+        } else {
+            newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, false);
+        };
         res.end();
     });
 
     app.get('/display_map/:code', (req, res) => {
         const code = req.params.code;
-        console.log(code);
-        res.end(JSON.stringify(JSON.parse(fs.readFileSync(`./current_games/${code}`))));
+        const gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        res.end(JSON.stringify(gamejson));
     });
 
-    app.get('/start/:code', (req, res) => {
+    app.get('/time/:code', (req, res) => {
         const code = req.params.code;
         let gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
-        if (!gamejson.checkPlay) {
-            const updateInterval = setInterval(() => {
-                play.emit(`updateTime/${code}`);
-            }, 300000);
+        //console.log(gamejson.gameRunning);
+        if (!gamejson.gameRunning) {
+            //playing time
+            let countUpdates = 0;
+            let countSec = 0;
+            /*const updateInterval = setInterval(() => {
+                countUpdates ++;
+                play.emit(`updateTime/${code}`, countUpdates);
+            }, 60000);*/
+            const countSeconds = setInterval(() => {
+                countSec ++;
+                play.emit(`countTime/${code}`, countSec);
+            }, 1000);
             const runawayUpdate = setInterval(() => {
-                newCoordinates.emit(`new_coordinates/${code}`, undefined, undefined, true);
+                countUpdates ++;
+                newCoordinates.emit(`new_coordinates/${code}`, undefined, undefined, countUpdates * 90000);
             }, 90000);
             setTimeout(() => {
                 play.emit(`gameover/${code}`);
-                clearInterval(updateInterval);
+                //clearInterval(updateInterval);
                 clearInterval(runawayUpdate);
+                clearInterval(countSeconds);
             }, gamejson.time);
-            gamejson.checkPlay = true;
+
+            //wait seeker time
+            setTimeout(() => {
+                play.emit(`seekersReady/${code}`);
+            }, gamejson.time/12);
+            gamejson.gameRunning = true;
+            newCoordinates.emit(`reread/${code}`);
+            //console.log('set Intervals and Timeouts');
             fs.writeFileSync(`./current_games/${code}`, JSON.stringify(gamejson));
         }; 
         res.end();

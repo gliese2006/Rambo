@@ -4,31 +4,23 @@ module.exports.findSeekers = findSeekers;
 
 
 function saveCoordinates (gamejson, id, coordinates) {
-    gamejson.players.forEach((player) => {
-        if (player.id === id) {
-            player.coordinates = true;
-            player.coordinates = coordinates;
-        };
+    const player = gamejson.players.find((player) => {
+        return player.id === id
     });
+    //player.coordinates = true;
+    player.coordinates = coordinates;
     return gamejson.players;
 };
 
 function findSeekers (players) {
-    let seekers = [];
-    players.forEach((player) => {
-        if (player.task === 'seeker') {
-            seekers.push(player);
-        };
+    return players.filter((player) => {
+        return player.task === 'seeker';
     });
-    return seekers;
 };
 
 function setReady (readyList, id) {
-    let checkready;
-    readyList.forEach((item) => {
-        if(item === id) {
-            checkready = 'ready';
-        };
+    const checkready = readyList.find((item) => {
+        return item === id
     });
     if (!checkready) {
         readyList.push(id);

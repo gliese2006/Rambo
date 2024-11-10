@@ -6,19 +6,18 @@ const code = window.location.pathname.split('/play/')[1];
 const search = new URLSearchParams(window.location.search);
 const id = Number(search.get('id'));
 const task = search.get('task');
-let coordinates, players, map, markerslayer, insideArea = true, outsideTimeout, timeInterval, waitInterval, checkCentered;
+let coordinates, map, markerslayer, insideArea = true, outsideTimeout, timeInterval, waitInterval, checkCentered, timeUpdate;
 
 const xhr = new XMLHttpRequest();
 const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}`);
 const gamejson = getGameInfo(xhr);
 const username = getUsername(gamejson, id);
-waitSeeker(gamejson, task, dom('.display-waiting-time'), waitInterval);
 map = createMap(gamejson, map);
 
 let seekerMarkersLayer = L.layerGroup().addTo(map), runawayMarkersLayer = L.layerGroup().addTo(map);
 
 //time
-displayTime(gamejson.time/1000, dom('.display-time'), timeInterval);
+//timeInterval = displayTime(gamejson.time/1000, dom('.display-time'));
 
 //map
 setInterval(() => {
@@ -26,7 +25,7 @@ setInterval(() => {
     function scb (position) {
         coordinates = [position.coords.latitude, position.coords.longitude];
 
-        xhr.open('POST', `/send_coordinates/${code}?id=${id}`, false);
+        xhr.open('POST', `/send_coordinates/${code}?id=${id}&place=play`, false);
         xhr.setRequestHeader('Content-type', 'application/json');
         const data = JSON.stringify({coordinates});
         xhr.send(data);
@@ -45,54 +44,90 @@ setInterval(() => {
 }, 2000);
 
 //sse
-sse.onmessage = function (response) {    
-    players = JSON.parse(response.data);
-
-    if (players === 'canceled') {
+sse.onmessage = function (res) {    
+    const response = JSON.parse(res.data);
+    if (response === 'canceled') {
         document.body.innerHTML = '<p> Host canceled game! </p>'
         setTimeout(() => {
             window.location.replace('http://localhost:8000/');
         }, 2000);
-    } else if (players.exit) {
-        if (players.exit === username) {
+    } else if (response.exit) {
+        if (response.exit === username) {
             window.location.replace('http://localhost:8000/');
         } else {
-            alert(`${players.exit} exited the game.`);
+            alert(`${response.exit} exited the game.`);
         };
-        gamejson.players = players;
-    } else if (players.confirm) {
+        gamejson.players = response;
+    } else if (response.confirm) {
         if (id === 0) {
-            confirmExit(code, players.confirm[0], players.confirm[1], xhr);
+            confirmExit(code, response.confirm[0], response.confirm[1], xhr);
         } else if (id) {
             confirmCancel(code, id, xhr);
         }
-    } else if (players.newHost) {
-        if (players.newHost === username) {
+    } else if (response.newHost) {
+        if (response.newHost === username) {
             alert('You are the new host of this game. ');
             window.location.replace(`http://localhost:8000/play/${code}?id=0&task=${task}`);
         } else {
-            alert(`${players.exit} is the new host of this game.`);
+            alert(`${response.exit} is the new host of this game.`);
         };
-    } else if (players.gameover) {
-        document.body.innerHTML = `<p> ${players.gameover} If you want to play another game, just "create" and "join" a "new game".</p>`
+    } else if (response.gameover) {
+        document.body.innerHTML = `<p> ${response.gameover} If you want to play another game, just "create" and "join" a "new game".</p>`
         setTimeout(() => {
             window.location.replace('http://localhost:8000/');
         }, 5000);
-    } else if (players.timeUpdate) {
-        const updatedTime = players.timeUpdate/1000;
-        clearInterval(timeInterval);
-        displayTime(updatedTime, dom('.display-time'), timeInterval);
+    } else if (response.checkSeekersReady) {
+        console.log('seeker message')
+        if (response.checkSeekersReady === 'Y') {
+            if (task === 'seeker') {
+                document.getElementById('dialog-wait-seeker').close();
+                //clearInterval(timeInterval); timeInterval ist sowieso nicht überall das gleiche
+            } else {
+                //alert('Seekers are now hunting you!')
+            };
+        } else {
+            console.log(task);
+            if (task === 'seeker') {
+                console.log(timeUpdate);
+                waitSeeker(Math.round(gamejson.time) / 12 - timeUpdate, task, dom('.display-waiting-time'));
+            } else {
+                alert(`You have ${transformTime(gamejson.time/12000)} minutes to run away before the seekers start hunting you.`)
+            }
+        }
     } else {
-        checkDistance(coordinates, players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
-        markerslayer = displayPlayers(players, map, seekerMarkersLayer, runawayMarkersLayer);
-        runawayMarkersLayer = markerslayer.runawayMarkersLayer;
-        seekerMarkersLayer = markerslayer.seekerMarkersLayer;
+        if (response.update) {
+            console.log('timeupdate');
+            timeUpdate = response.update;
+            const updatedTime = (gamejson.time - timeUpdate)/1000;
+            clearInterval(timeInterval);
+            timeInterval = displayTime(updatedTime, dom('.display-time'));
+            console.log(response.update);
+            if (response.update%90000 === 0) {
+                if (task === 'seeker') {
+                    dom('.display-message').innerHTML = 'Runaway locations Update!';
+                    setTimeout(() => {
+                        dom('.display-message').innerHTML = '';
+                    }, 5000);
+                } else {
+                    dom('.display-message').innerHTML = 'Seekers know your current position.'
+                    setTimeout(() => {
+                        dom('.display-message').innerHTML = '';
+                    }, 5000);
+                }
+            };
+        };
+        if (response.players) {
+            console.log([coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout]);
+            checkDistance(coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
+            markerslayer = displayPlayers(response.players, map, seekerMarkersLayer, runawayMarkersLayer);
+            runawayMarkersLayer = markerslayer.runawayMarkersLayer;
+            seekerMarkersLayer = markerslayer.seekerMarkersLayer;
+        };
     };
 };
 
 //exit button
 if (id) {
-    alert(`You have ${gamejson.time / 12} minutes to run away before the seekers start hunting you.`)
     dom('.display-exit-cancel-button').innerHTML = '<button class="button-exit"> Exit </button>';
     dom('.button-exit').addEventListener('click', () => {
         if (confirm('Are you sure you want to exit this game?')) {
@@ -132,6 +167,10 @@ if (id === 0) {
             dom('#dialog-select-host').close();
         });
     });
+
+    //set server timeout
+    xhr.open('GET', `/time/${code}`);
+    xhr.send()
 };
 
 
@@ -142,7 +181,7 @@ function getGameInfo (xhr) {
     xhr.open('GET', `/display_map/${code}`, false);
     xhr.send();
     if (xhr.status === 500) {
-        document.body.innerHTML = '<p> Host canceled game! </p>'
+        document.body.innerHTML = 'Game is not running anymore.'
         setTimeout(() => {
             window.location.replace('http://localhost:8000/');
         }, 2000);
@@ -151,30 +190,23 @@ function getGameInfo (xhr) {
 };
 
 function getUsername (gamejson, id) {
-    const user =  gamejson.players.find((player) => player.id === id);
-    return user ? user.username : null;
+    const player = gamejson.players.find((player) => {
+        return player.id === id
+    });
+    return player.username;
 };
 
-function waitSeeker (gamejson, task, dom, timeInterval) {
+function waitSeeker (time, task, dom) {
     if (task === 'seeker') {
         document.getElementById('dialog-wait-seeker').showModal();
-        const time = gamejson.time / 12;
-        //console.log(Math.round(time/3600) - 0.5);
-
-        displayTime(time / 1000, dom, timeInterval);
-
-        setTimeout(() => {
-            document.getElementById('dialog-wait-seeker').close();
-            //console.log(timeInterval);
-            clearInterval(timeInterval);
-        }, time);
+        console.log(time);
+        waitInterval = displayTime(time / 1000, dom);
     };
 };
 
-function displayTime (time, dom, timeInterval) {
-    //console.log(time);
+function displayTime (time, dom) {
     dom.innerHTML = transformTime(time);
-    timeInterval = setInterval(() => {
+    return timeInterval = setInterval(() => {
         time --;
         dom.innerHTML = transformTime(time);
     }, 1000);
@@ -186,11 +218,6 @@ function transformTime (time) {
     const sec = Math.round((time%3600)%60 - 0.5);
     return `${h}h ${min}min ${sec}sec`;
 };
-
-console.log(transformTime(1800))
-console.log(transformTime(1799))
-console.log(transformTime(1801))
-console.log(transformTime(0))
 
 //import { selectNewHost, confirmExit, confirmCancel } from './Scripts_modules/play_host.js';
 function selectNewHost (gamejson) {
@@ -230,29 +257,37 @@ function createMap (gamejson, map) {
         maxZoom: 20,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+    const playingArea = L.circle(gamejson.area.coordinates, {
+        color: 'red',
+        fillColor: 'red',
+        fillOpacity: 0.25,
+        radius: gamejson.area.radius
+    }).addTo(map);
     return map;
 };
 
 function displayPlayers (players, map, runawayMarkersLayer, seekerMarkersLayer) {
     players.forEach((player) => {
-        if (player.task === 'seeker') {
-            seekerMarkersLayer.clearLayers();
-            const marker = L.marker(player.coordinates);
-            if (id === player.id) {
-                marker.bindPopup('You');
-            } else {
-                marker.bindPopup(player.username);
+        if (player.coordinates) {
+            if (player.task === 'seeker') {
+                seekerMarkersLayer.clearLayers();
+                const marker = L.marker(player.coordinates);
+                if (id === player.id) {
+                    marker.bindPopup('You');
+                } else {
+                    marker.bindPopup(player.username);
+                };
+                marker.addTo(seekerMarkersLayer);
+            } else if (player.task === 'runaway') {
+                runawayMarkersLayer.clearLayers();
+                const marker = L.marker(player.coordinates);
+                if (id === player.id) {
+                    marker.bindPopup('You');
+                } else {
+                    marker.bindPopup(player.username);
+                };
+                marker.addTo(runawayMarkersLayer);
             };
-            marker.addTo(seekerMarkersLayer);
-        } else if (player.task === 'runaway') {
-            runawayMarkersLayer.clearLayers();
-            const marker = L.marker(player.coordinates);
-            if (id === player.id) {
-                marker.bindPopup('You');
-            } else {
-                marker.bindPopup(player.username);
-            };
-            marker.addTo(runawayMarkersLayer);
         };
     });
     return {runawayMarkersLayer, seekerMarkersLayer};
@@ -261,10 +296,13 @@ function displayPlayers (players, map, runawayMarkersLayer, seekerMarkersLayer) 
 function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insideArea, outsideTimeout) {
     if (task === 'runaway') {
         players.forEach((player) => {
-            if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 5) {
-                xhr.open('GET', `/play/lost_game/${gamejson.code}?id=${id}`);
-                xhr.send();
-                //message
+            if (player.coordinates) {
+                if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 5) {
+                    xhr.open('GET', `/play/lost_game/${gamejson.code}?id=${id}`);
+                    xhr.send();
+                    alert('You are caught! You can either join a seeker or wait for the game to finish.')
+                    window.location.replace('http://localhost:8000');
+                };
             };
         });
     };
@@ -273,8 +311,8 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
             alert('You are outside of the playing area, you have 1 minute to return, otherwhise you will be disqualified.')
             insideArea = false;
             outsideTimeout = setTimeout(() => {
-                alert('1 minute is over - you are disqualified! You can join a seeker or wait for the game to finish.')
-                window.document.replace('http://localhost:8000');
+                alert('1 minute is over - you are disqualified! You can either join a seeker or wait for the game to finish.')
+                window.location.replace('http://localhost:8000');
                 xhr.open(`/play/lost_game/${gamejson.code}?id=${id}`);
                 xhr.send();
             }, 60000);
@@ -300,4 +338,4 @@ function centerUserPosition (map, coordinates, dom, checkCentered) {
     return checkCentered;
 };
 
-//error, error, timeupdate, sse locations, Durcheinander, github
+//error letzter ready exit, error module im client, timeupdate, sse locations, Durcheinander, github, res.redirect()

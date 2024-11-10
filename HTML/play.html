@@ -12,19 +12,27 @@
     <style>
         #map {
             height: 400px;
+        };
+        .display-dialog-wait-seeker {
+            height: 400px;
+            width: 100px;
+            background-color: black;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <p class="display-message"></p>
     <p class="display-time"></p>
     <button class="button-find-position">Find your position</button>
     <div class="display-exit-cancel-button"></div>
 
     <!--Dialog-->
-    <dialog id="dialog-wait-seeker">
-        <p class="display-waiting-time"></p>
-    </dialog>
+    <div class="display-dialog-wait-seeker">
+        <dialog id="dialog-wait-seeker">
+            <p class="display-waiting-time"></p>
+        </dialog>
+    </div>
 
     <dialog id="dialog-select-host">
         <p>Are you sure, you want to exit this game? If yes, please select a new host or cancel the game completely.</p>
