@@ -1,6 +1,10 @@
+const findmodule = require('./find');
+
 module.exports.saveCoordinates = saveCoordinates;
 module.exports.setReady = setReady;
 module.exports.findSeekers = findSeekers;
+module.exports.checkRunawayNumber = checkRunawayNumber;
+module.exports.clearTimer = clearTimer;
 
 
 function saveCoordinates (gamejson, id, coordinates) {
@@ -27,3 +31,29 @@ function setReady (readyList, id) {
     };
     return readyList;
 };
+
+function checkRunawayNumber (code, timers, play) {
+    const gamejson = findmodule.readFile(code);
+    let i;
+    const runaway = gamejson.players.find((player) => {
+        player.task === 'runaway'
+    });
+    if (!runaway) {
+        clearTimer (code, timers)
+        play.emit(`gameOver/${code}`, 'All runaways caught. Seekers won!');
+    };
+    return timers;
+};
+
+function clearTimer (code, timers) {
+    i = findmodule.timersFindIndex(code, timers);
+    clearInterval(timers[i].countSeconds);
+    clearInterval(timers[i].runawayUpdate);
+    clearTimeout(timers[i].gameOver);
+    clearTimeout(timers[i].waitToDelete);
+    clearTimeout(timers[i].seekersReady);
+    setTimeout(() => {
+        findmodule.deleteFile(code);
+    }, 30000);
+    timers.splice(i, 1);
+}

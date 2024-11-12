@@ -6,7 +6,7 @@ const code = window.location.pathname.split('/play/')[1];
 const search = new URLSearchParams(window.location.search);
 const id = Number(search.get('id'));
 const task = search.get('task');
-let coordinates, map, markerslayer, insideArea = true, outsideTimeout, timeInterval, waitInterval, checkCentered, timeUpdate;
+let coordinates, map, markerslayer, insideArea = true, outsideTimeout, timeInterval, waitInterval, checkCentered, timeUpdate, checkSeekersReady;
 
 const xhr = new XMLHttpRequest();
 const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}`);
@@ -38,52 +38,46 @@ setInterval(() => {
 
     function ecb (error) {
         //Alert only once (every x seconds)
-        alert(`<p>${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.</p>`);
+        alert(`${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.`);
         dom('.display-message').innerHTML = `<p>${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.</p>`;
     };
-}, 2000);
+}, 5000);
 
 //sse
 sse.onmessage = function (res) {    
     const response = JSON.parse(res.data);
-    if (response === 'canceled') {
-        document.body.innerHTML = '<p> Host canceled game! </p>'
-        setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
-        }, 2000);
-    } else if (response.exit) {
-        if (response.exit === username) {
-            window.location.replace('http://localhost:8000/');
-        } else {
-            alert(`${response.exit} exited the game.`);
-        };
-        gamejson.players = response;
-    } else if (response.confirm) {
+    if (response.exit) {
+            alert (response.exit.username + response.exit.message);
+            window.location.reload();
+    /*} else if (response.confirm) {
         if (id === 0) {
             confirmExit(code, response.confirm[0], response.confirm[1], xhr);
         } else if (id) {
             confirmCancel(code, id, xhr);
-        }
+        }*/
     } else if (response.newHost) {
         if (response.newHost === username) {
             alert('You are the new host of this game. ');
             window.location.replace(`http://localhost:8000/play/${code}?id=0&task=${task}`);
         } else {
             alert(`${response.exit} is the new host of this game.`);
+            window.location.reload();
         };
     } else if (response.gameover) {
-        document.body.innerHTML = `<p> ${response.gameover} If you want to play another game, just "create" and "join" a "new game".</p>`
+        sse.close();
+        document.body.innerHTML = `<p> ${response.gameover} If you want to play another game, just "create" or "join" a "new game".</p>`
         setTimeout(() => {
             window.location.replace('http://localhost:8000/');
         }, 5000);
     } else if (response.checkSeekersReady) {
         console.log('seeker message')
         if (response.checkSeekersReady === 'Y') {
+            checkSeekersReady = true;
             if (task === 'seeker') {
                 document.getElementById('dialog-wait-seeker').close();
                 //clearInterval(timeInterval); timeInterval ist sowieso nicht überall das gleiche
             } else {
-                //alert('Seekers are now hunting you!')
+                alert('Seekers are now hunting you!');
             };
         } else {
             console.log(task);
@@ -92,7 +86,7 @@ sse.onmessage = function (res) {
                 waitSeeker(Math.round(gamejson.time) / 12 - timeUpdate, task, dom('.display-waiting-time'));
             } else {
                 alert(`You have ${transformTime(gamejson.time/12000)} minutes to run away before the seekers start hunting you.`)
-            }
+            };
         }
     } else {
         if (response.update) {
@@ -131,8 +125,12 @@ if (id) {
     dom('.display-exit-cancel-button').innerHTML = '<button class="button-exit"> Exit </button>';
     dom('.button-exit').addEventListener('click', () => {
         if (confirm('Are you sure you want to exit this game?')) {
+            sse.close();
             xhr.open('GET', `/exit/${code}?id=${id}&username=${username}&place=play`, true);
             xhr.send();
+            window.location.replace('http://localhost:8000');
+        } else {
+            window.location.reload();
         };
     });
 };
@@ -144,6 +142,8 @@ if (id === 0) {
         if (confirm('Are you sure you want to cancel this game?')) {
             xhr.open('GET', `/cancel/${code}?place=play`, false);
             xhr.send();
+        } else {
+            window.location.reload();
         };
     });
     dom('.button-change-host').addEventListener('click', () => {
@@ -181,7 +181,7 @@ function getGameInfo (xhr) {
     xhr.open('GET', `/display_map/${code}`, false);
     xhr.send();
     if (xhr.status === 500) {
-        document.body.innerHTML = 'Game is not running anymore.'
+        document.body.innerHTML = 'Game does not exist anymore.'
         setTimeout(() => {
             window.location.replace('http://localhost:8000/');
         }, 2000);
@@ -228,12 +228,12 @@ function selectNewHost (gamejson) {
     return playershtml +'</select>';
 };
 
-function confirmExit (code, username, exitid, xhr) {
+/*function confirmExit (code, username, exitid, xhr) {
     if (confirm(`${username} wants to exit the game. Please confirm!`)) {
-        xhr.open('GET', `/confirm/exit/${code}?id=${exitid}answer=confirmed`);
+        xhr.open('POST', `/confirm/exit/${code}?id=${exitid}&answer=confirmed`);
         xhr.send();
     } else {
-        xhr.open('GET', `/confirm/exit/${code}?${exitid}answer=denied`);
+        xhr.open('POST', `/confirm/exit/${code}?${exitid}&answer=denied`);
         xhr.send();
     }
 };
@@ -246,7 +246,7 @@ function confirmCancel (code, id, xhr) {
         xhr.open('GET', `/confirm/cancel/${code}?id=${id}&answer=denied`);
         xhr.send();
     }
-};
+};*/
 
 
 //import { createMap, displayPlayers, checkDistance, centerUserPosition } from './Scripts_modules/play_map.js';
@@ -294,13 +294,15 @@ function displayPlayers (players, map, runawayMarkersLayer, seekerMarkersLayer) 
 };
 
 function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insideArea, outsideTimeout) {
-    if (task === 'runaway') {
+    if (task === 'runaway' && checkSeekersReady) {
+        console.log('checking');
         players.forEach((player) => {
             if (player.coordinates) {
                 if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 5) {
-                    xhr.open('GET', `/play/lost_game/${gamejson.code}?id=${id}`);
-                    xhr.send();
+                    sse.close();
                     alert('You are caught! You can either join a seeker or wait for the game to finish.')
+                    xhr.open('GET', `/lost_game/${gamejson.code}?id=${id}`);
+                    xhr.send();
                     window.location.replace('http://localhost:8000');
                 };
             };
@@ -308,19 +310,21 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
     };
     if (insideArea) {
         if (map.distance(gamejson.area.coordinates, coordinates) > gamejson.area.radius) {
-            alert('You are outside of the playing area, you have 1 minute to return, otherwhise you will be disqualified.')
+            alert('You are outside of the playing area, you have 1 minute to return, otherwhise you will be disqualified.');
             insideArea = false;
             outsideTimeout = setTimeout(() => {
+                sse.close();
                 alert('1 minute is over - you are disqualified! You can either join a seeker or wait for the game to finish.')
-                window.location.replace('http://localhost:8000');
-                xhr.open(`/play/lost_game/${gamejson.code}?id=${id}`);
+                xhr.open(`/disqualified/${gamejson.code}?id=${id}`);
                 xhr.send();
+                window.location.replace('http://localhost:8000');
             }, 60000);
         };
     } else {
         if (map.distance(gamejson.area.coordinates, coordinates) < gamejson.area.radius) {
             alert('Well done! You are back inside the playing area.');
             clearTimeout(outsideTimeout);
+            window.location.reload();
         };
     }
 };

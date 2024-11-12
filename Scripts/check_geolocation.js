@@ -11,7 +11,7 @@ const task = search.get('task');
 
 const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}`);
 
-let playerMarkersLayer, coordinates, center, map, checkZone;
+let playerMarkersLayer, coordinates, center, map, checkZone, checkCentered;
 
 
 //check status
@@ -39,6 +39,11 @@ setInterval(() => {
         if (document.getElementById('buttons')) {
         dom('.display-geolocation-message').innerHTML = '<p> Geolocation successful! Please check whether your real position matches the one on the map.</p>'
         };
+
+        checkCentered = centerUserPosition(map, coordinates, dom('.button-find-position'), checkCentered);
+        if (checkCentered) {
+            map.setView(coordinates, 16, {animate: true});
+        };
     };
 
     function ecb (error) {
@@ -46,13 +51,13 @@ setInterval(() => {
         dom('.display-message').innerHTML = `<p>${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.</p>`;
         };
     };
-}, 2000);
+}, 5000);
 
 //map
 xhr.open('GET', `/display_map/${code}`, false);
 xhr.send();
 if (xhr.status === 500) {
-    document.body.innerHTML = 'Game is not running anymore.'
+    document.body.innerHTML = 'Game does not exist anymore.'
     setTimeout(() => {
         window.location.replace('http://localhost:8000/');
     }, 2000);
@@ -98,45 +103,49 @@ sse.onmessage = (res) => {
         window.location.replace(`http://localhost:8000/play/${code}?id=${id}&task=${task}`);
         sse.close();
     } else {
-        const players = response.players;
+        console.log(response);
+        if (response.players) {
+            const players = response.players;
 
-        if (playerMarkersLayer) {
-            console.log(playerMarkersLayer);
-            playerMarkersLayer.clearLayers();
-            console.log(playerMarkersLayer);
-        };
+            if (playerMarkersLayer) {
+                console.log(playerMarkersLayer);
+                playerMarkersLayer.clearLayers();
+                console.log(playerMarkersLayer);
+            };
 
-        playerMarkersLayer = L.layerGroup().addTo(map);
-        players.forEach((player) => {
-            if (player.coordinates) {
-                const marker = L.marker(player.coordinates);
-                if (id === player.id) {
-                    marker.bindPopup('You');
-                } else {
-                    marker.bindPopup(player.username);
+            playerMarkersLayer = L.layerGroup().addTo(map);
+            players.forEach((player) => {
+                if (player.coordinates) {
+                    const marker = L.marker(player.coordinates);
+                    if (id === player.id) {
+                        marker.bindPopup('You');
+                    } else {
+                        marker.bindPopup(player.username);
+                    };
+                    marker.addTo(playerMarkersLayer);
                 };
-                marker.addTo(playerMarkersLayer);
-            };
-        });
+            });
+         
 
-        //check ready
-        if (document.getElementById('buttons')) {
-        if (map.distance(center, coordinates) <= 20) {
-            if (checkZone !== 2) {
-                dom('.display-message').innerHTML = '';
-                dom('.display-ready-button').innerHTML = '<button class="button-ready"> Ready </button>';
-                dom('.button-ready').addEventListener('click', () => {
-                    window.location.replace(`${window.location}&status=ready`);
-                });
-                checkZone = 2;
+            //check ready
+            if (document.getElementById('buttons')) {
+            if (map.distance(center, coordinates) <= 20) {
+                if (checkZone !== 2) {
+                    dom('.display-message').innerHTML = '';
+                    dom('.display-ready-button').innerHTML = '<button class="button-ready"> Ready </button>';
+                    dom('.button-ready').addEventListener('click', () => {
+                        window.location.replace(`${window.location}&status=ready`);
+                    });
+                    checkZone = 2;
+                };
+            } else {
+                if (checkZone !== 1) {
+                    dom('.display-message').innerHTML = 'To start the game, please move inside the blue zone on the map. If you already are inside the blue zone and therefore geolocation does not work, please exit.';
+                    dom('.display-ready-button').innerHTML = '';
+                    checkZone = 1;
+                };
             };
-        } else {
-            if (checkZone !== 1) {
-                dom('.display-message').innerHTML = 'To start the game, please move inside the blue zone on the map. If you already are inside the blue zone and therefore geolocation does not work, please exit.';
-                dom('.display-ready-button').innerHTML = '';
-                checkZone = 1;
             };
-        };
         };
     };
 };
@@ -167,4 +176,18 @@ if (id === 0) {
         };
     });
 };
+};
+
+//centerUserPosition button
+function centerUserPosition (map, coordinates, dom, checkCentered) {
+    document.body.addEventListener('pointerdown', () => {
+        if (map.getCenter() !== coordinates || map.getZoom() !== 17) {
+            checkCentered = false;
+        }
+    });
+    dom.addEventListener('click', () => {
+        map.setView(coordinates, 16, {animate: true});
+        checkCentered = true;
+    });
+    return checkCentered;
 };

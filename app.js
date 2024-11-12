@@ -9,6 +9,17 @@ const play = new EventEmitter();
 const app = express();
 app.use(express.json());
 //app.use(cors({origin: ['http://localhost:8000', 'http://127.0.0.1:8000']}));
+let timers = [];
+class addTimer {
+    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady) {
+        this.code = code;
+        this.countSeconds = countSeconds;
+        this.runawayUpdate = runawayUpdate;
+        this.gameOver = gameOver;
+        this.waitToDelete = waitToDelete;
+        this.seekersReady = seekersReady;
+    };
+};
 
 
 //files
@@ -86,7 +97,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         const code = req.params.code;
         const id = req.query.id;
         res.setHeader('Content-type', 'text/event-stream');
-        let gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        let gamejson = findmodule.readFile(code);
         if (gamejson.readyForInstructions) {
             const task = findmodule.findTask(code, id);
             res.write("data: " + `${JSON.stringify(`http://localhost:8000/${task}_instructions/${code}?id=${id}`)}\n\n`); 
@@ -106,7 +117,9 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     app.get('/get_geolocations/:code', (req, res) => {
         const code = req.params.code;
         let firstTimeUpdate = false;
-        let gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        let gamejson = findmodule.readFile(code);
+        let readyList = [];
+        res.setHeader('Content-type', 'text/event-stream');
         
         play.on(`countTime/${code}`, (countSec) => {
             if (!firstTimeUpdate) {
@@ -120,15 +133,17 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                 };
             };
         });
+        if (gamejson.gameOver) {
+            res.write("data: " + `${JSON.stringify({gameover: 'The Game is over.'})}\n\n`);
+            res.end();
+        };
 
         newCoordinates.on(`reread/${code}`, () => {
-            gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+            gamejson = findmodule.readFile(code);
         });
-        let readyList = [];
-        res.setHeader('Content-type', 'text/event-stream');
         newCoordinates.on(`new_coordinates/${code}`, (coordinates, id, update) => {
             let players;
-            if (id) {
+            if (typeof id === 'number') {
                 if (update || req.query.task === 'runaway') {
                     players = geolocationmodule.saveCoordinates(gamejson, id, coordinates);
                 } else if (req.query.task === 'seeker') {
@@ -154,18 +169,25 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             res.end();
         });
         newCoordinates.on(`exited_game/${code}`, (username, id) => {
-            if (req.query.id !== id) {
-                //res.write("data: " + `${JSON.stringify({exit: username})}\n\n`);
-            };
+                res.write("data: " + `${JSON.stringify({exit: {username, message: ' exited the game.'}})}\n\n`);
         });
         play.on(`seekersReady/${code}`, () => {
             res.write("data: " + `${JSON.stringify({checkSeekersReady: 'Y'})}\n\n`);
             gamejson.checkSeekersReady = true;
-            fs.writeFileSync(`./current_games/${code}`, JSON.stringify(gamejson));
+            findmodule.writeFile(code, gamejson);
             newCoordinates.emit(`reread/${code}`);
         });
-        play.on(`gameOver/${code}`, () => {
-            res.write("data: " + `${JSON.stringify({gameover: 'Time is up.'})}\n\n`);
+        play.on(`lost_game/${code}`, (username) => {
+            "data: " + `${JSON.stringify({exit: {username, message: ' was caught.'}})}\n\n`
+        });
+        play.on(`disqualified/${code}`, (username) => {
+            res.write("data: " + `${JSON.stringify({exit: {username, message: ' was disqualified.'}})}\n\n`)
+        });
+        play.on(`gameOver/${code}`, (message) => {
+            gamejson.gameOver = true;
+            findmodule.writeFile(code, gamejson);
+            newCoordinates.emit(`reread/${code}`);
+            res.write("data: " + `${JSON.stringify({gameover: message})}\n\n`);
             res.end();
         });
     });
@@ -261,36 +283,40 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
 //PREPARATION
 //general requests
-app.get('/exit/:code', (req, res) => {
-    const code = req.params.code;
-    const id = req.query.id;
-    const place = req.query.place;
-    let username;
-    res.end();
-    findmodule.findCurrentPlayer(code, id, (i, gamejson) => {
-        username = gamejson.players[i].username;
-        gamejson.players.splice(i, 1);
-    });
-    
-    if (place === 'check_geolocation') {
+    app.get('/exit/:code', (req, res) => {
+        const code = req.params.code;
+        const id = req.query.id;
+        const place = req.query.place;
+        let username;
+        findmodule.findCurrentPlayer(code, id, (i, gamejson) => {
+            username = gamejson.players[i].username;
+            gamejson.players.splice(i, 1);
+        });
+        
         newCoordinates.emit(`exited_game/${code}`, username, id);
         newCoordinates.emit(`reread/${code}`);
-        newCoordinates.emit(`new_coordinates/${code}`);
-        newCoordinates.emit(`ready/${code}`);
-    }
-});
 
-app.get('/cancel/:code', (req, res) => {
-    const code = req.params.code;
-    const place = req.query.place;
-    fs.unlinkSync(`./current_games/${code}`);
-    if (place === 'wait') {
-        waitingForHost.emit(`canceled_game/${code}`);
-    } else if (place === 'check_geolocation') {
-        newCoordinates.emit(`canceled_game/${code}`);
-    };
-    res.end();
-});
+        if (place === 'check_geolocation') {
+            newCoordinates.emit(`ready/${code}`);
+        };
+        timers = geolocationmodule.checkRunawayNumber(code, timers, play);
+        res.end();
+    });
+
+    app.get('/cancel/:code', (req, res) => {
+        const code = req.params.code;
+        const place = req.query.place;
+        findmodule.deleteFile(code);
+        if (place === 'wait') {
+            waitingForHost.emit(`canceled_game/${code}`);
+        } else if (place === 'check_geolocation') {
+            newCoordinates.emit(`canceled_game/${code}`);
+        } else if (place === 'play') {
+            geolocationmodule.clearTimer(code, timers);
+            play.emit(`gameOver/${code}`, 'Host canceled game!');
+        };
+        res.end();
+    });
 
 //request on wait
     app.get('/wait/:code', (req, res) => {
@@ -358,9 +384,9 @@ app.get('/cancel/:code', (req, res) => {
         const time = req.body.time;
         const task = findmodule.findTask(code, 0);
         settimemodule.addTime(code, time);
-        const gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        const gamejson = findmodule.readFile(code);
         gamejson.readyForInstructions = true;
-        fs.writeFileSync(`./current_games/${code}`, JSON.stringify(gamejson));
+        findmodule.writeFile(code, gamejson);
         waitingForHost.emit(`ready_for_instructions/${code}`);
         res.end(JSON.stringify(`http://localhost:8000/${task}_instructions/${code}?id=0`));
     });
@@ -421,13 +447,13 @@ app.get('/cancel/:code', (req, res) => {
 
     app.get('/display_map/:code', (req, res) => {
         const code = req.params.code;
-        const gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        const gamejson = findmodule.readFile(code);
         res.end(JSON.stringify(gamejson));
     });
 
     app.get('/time/:code', (req, res) => {
         const code = req.params.code;
-        let gamejson = JSON.parse(fs.readFileSync(`./current_games/${code}`));
+        let gamejson = findmodule.readFile(code);
         //console.log(gamejson.gameRunning);
         if (!gamejson.gameRunning) {
             //playing time
@@ -445,22 +471,68 @@ app.get('/cancel/:code', (req, res) => {
                 countUpdates ++;
                 newCoordinates.emit(`new_coordinates/${code}`, undefined, undefined, countUpdates * 90000);
             }, 90000);
-            setTimeout(() => {
-                play.emit(`gameover/${code}`);
+            let waitToDelete;
+            const gameOver = setTimeout(() => {
+                play.emit(`gameOver/${code}`, 'Time is up. Runaways won!');
+                waitToDelete = setTimeout(() => {
+                    findmodule.deleteFile(code);
+                    timers.splice(findmodule.timersFindIndex(code, timers), 1);
+                }, 30000);
                 //clearInterval(updateInterval);
                 clearInterval(runawayUpdate);
                 clearInterval(countSeconds);
             }, gamejson.time);
 
             //wait seeker time
-            setTimeout(() => {
+            const seekersReady = setTimeout(() => {
                 play.emit(`seekersReady/${code}`);
             }, gamejson.time/12);
+            const timer = new addTimer (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady);
+            //const timer = new addTimer (1, 2, 3, 4, 5, 6);
+            const hello = {hello1: 1, hello: 2};
+            //console.log(timer.code);
+            //timers.push('hello2');
+            //timers.push(hello);
+            timers.push(timer);
+            //timers.push('hello');
+            //console.log(timers[1]);
+            //console.log(timers[0].code);
+            //console.log(timers[0].countSeconds);
             gamejson.gameRunning = true;
+            findmodule.writeFile(code, gamejson);
             newCoordinates.emit(`reread/${code}`);
             //console.log('set Intervals and Timeouts');
-            fs.writeFileSync(`./current_games/${code}`, JSON.stringify(gamejson));
         }; 
+        res.end();
+    });
+
+    app.get('/lost_game/:code', (req, res) => {
+        const code = req.params.code;
+        const id = req.query.id;
+        let username;
+
+        findmodule.findCurrentPlayer(code, id, (i, gamejson) => {
+            username = gamejson.players[i].username;
+            gamejson.players.splice(i, 1);
+        });
+
+        play.emit(`lost_game/${code}`, username);
+        timers = geolocationmodule.checkRunawayNumber(code, timers, play);
+        res.end();
+    });
+
+    app.get('/disqualified/:code', (req, res) => {
+        const code = req.params.code;
+        const id = req.query.id;
+        let username;
+
+        findmodule.findCurrentPlayer(code, id, (i, gamejson) => {
+            username = gamejson.players[i].username;
+            gamejson.players.splice(i, 1);
+        });
+
+        play.emit(`disqualified/${code}`, username);
+        timers = geolocationmodule.checkRunawayNumber(code, timers, play);
         res.end();
     });
 
