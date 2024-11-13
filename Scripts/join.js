@@ -9,16 +9,21 @@ dom('.button-submit').addEventListener('click', () => {
 
     const code = dom('.input-code').value;
     const username = dom('.input-username').value;
+    //console.log(username);
 
-    xhr.open('POST', '/add_new_Player', false);
-    xhr.setRequestHeader('Content-type', 'application/json');
-    const data = JSON.stringify({code, username});
-    xhr.send(data);
-    const response = JSON.parse(xhr.response);
-    if (response.check) {
-        console.log(response.response);
-        window.location.replace(response.response);
+    if (username) {
+        xhr.open('POST', '/add_new_Player', false);
+        xhr.setRequestHeader('Content-type', 'application/json');
+        const data = JSON.stringify({code, username});
+        xhr.send(data);
+        const response = JSON.parse(xhr.response);
+        if (response.check) {
+            //console.log(response.response);
+            window.location.replace(response.response);
+        } else {
+        dom('.display-response').innerHTML = response.response;
+        };
     } else {
-    dom('.display-response').innerHTML = response.response;
+        dom('.display-response').innerHTML = 'Please enter a name.';
     };
 });

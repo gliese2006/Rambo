@@ -3,7 +3,7 @@ function dom (c) {
     return document.querySelector(c);
 };
 code = window.location.pathname.split('/set_area/')[1];
-console.log(code);
+//console.log(code);
 //const code = window.location.pathname.split('/set_time/')[1];
 let coordinates, map, currentPosition, centerMarker, perimeter;
 
@@ -115,8 +115,8 @@ dom('.button-cancel').addEventListener('click', () => {
         xhr.send();
         document.body.innerHTML = '<p> Host canceled game! </p>';
         setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
-            console.log(window.location);
+            window.location.replace('/');
+            //console.log(window.location);
         }, 2000);
     };
 });

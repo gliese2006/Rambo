@@ -34,7 +34,6 @@ function setReady (readyList, id) {
 
 function checkRunawayNumber (code, timers, play) {
     const gamejson = findmodule.readFile(code);
-    let i;
     const runaway = gamejson.players.find((player) => {
         player.task === 'runaway'
     });
@@ -46,7 +45,7 @@ function checkRunawayNumber (code, timers, play) {
 };
 
 function clearTimer (code, timers) {
-    i = findmodule.timersFindIndex(code, timers);
+    const i = findmodule.timersFindIndex(code, timers);
     clearInterval(timers[i].countSeconds);
     clearInterval(timers[i].runawayUpdate);
     clearTimeout(timers[i].gameOver);

@@ -59,12 +59,12 @@ dom('.button-submit').addEventListener('click', () => {
     if (addPlayerTask()) {
         if (confirm('Please confirm by clicking ok all the player tasks.')) {
             addPlayerTask();
-            console.log(xhr.response);
+            //console.log(xhr.response);
             xhr.open('POST', `/send_player_task/${code}`, false);
             xhr.setRequestHeader('Content-type', 'application/json')
             const data = JSON.stringify(players);
             xhr.send(data);
-            console.log(xhr.response);
+            //console.log(xhr.response);
             window.location.replace(`/set_time/${code}`);
         };
     };

@@ -34,15 +34,15 @@ function addPlayer (players) {
 //sse
 sse.onmessage = function (response) {
     const res = JSON.parse(response.data);
-    console.log(res.exit);
+    //console.log(res.exit);
     if (res.exit) {
         alert(`${res.exit} exited the game.`);
     } else if (res == 'wait' && id > 0) {
-        window.location.replace(`http://localhost:8000/wait/${code[1]}${window.location.search}`)
+        window.location.replace(`/wait/${code[1]}${window.location.search}`)
     } else if (!res) {
         document.body.innerHTML = '<p> Host canceled game! </p>'
         setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         }, 2000);
     } else {
         addPlayer(res);
@@ -58,7 +58,7 @@ if (Number(id)) {
             sse.close();
             xhr.open('GET', `/exit${window.location.pathname}${window.location.search}`);
             xhr.send();
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         };
     });
 } else if (Number(id) === 0) {
@@ -75,7 +75,7 @@ if (Number(id)) {
     //start game
     dom('.button-start-game').addEventListener('click', () => {
         if (confirm('Are you sure you want to start this game? After starting nobody can join this game anymore.')) {
-            window.location.replace(`http://localhost:8000/set_area/${code[1]}`);
+            window.location.replace(`/set_area/${code[1]}`);
         };
     });
 };

@@ -100,11 +100,11 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         let gamejson = findmodule.readFile(code);
         if (gamejson.readyForInstructions) {
             const task = findmodule.findTask(code, id);
-            res.write("data: " + `${JSON.stringify(`http://localhost:8000/${task}_instructions/${code}?id=${id}`)}\n\n`); 
+            res.write("data: " + `${JSON.stringify(`/${task}_instructions/${code}?id=${id}`)}\n\n`); 
         };
         waitingForHost.on(`ready_for_instructions/${code}`, () => {
             const task = findmodule.findTask(code, id);
-            res.write("data: " + `${JSON.stringify(`http://localhost:8000/${task}_instructions/${code}?id=${id}`)}\n\n`);
+            res.write("data: " + `${JSON.stringify(`/${task}_instructions/${code}?id=${id}`)}\n\n`);
             res.end();
         });
         waitingForHost.on(`canceled_game/${code}`, () => {
@@ -160,7 +160,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             console.log(`ready ${readyList.length} ${req.query.id}`);
             console.log(`gamejson ${gamejson.players.length} ${req.query.id}`);*/
             if (readyList.length === gamejson.players.length) {
-                console.log(req.query.id);
+                //console.log(req.query.id);
                 res.write("data: " + `${JSON.stringify('ready')}\n\n`);
             };
         });
@@ -220,7 +220,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         const username = req.body.username;
         const code = newmodule.createCode();
         newmodule.createNewGame(code, username)
-        res.write(JSON.stringify(`http://localhost:8000/lobby/${code}?id=0`));
+        res.write(JSON.stringify(`/lobby/${code}?id=0`));
         res.end();
     });
 
@@ -344,7 +344,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         const coordinates = req.body.coordinates;
         const radius = req.body.radius;
         setareamodule.addArea(code, coordinates, radius);
-        res.end(JSON.stringify(`http://localhost:8000/set_tasks/${code}`));
+        res.end(JSON.stringify(`/set_tasks/${code}`));
     });
     //redirect players to new sse, write current game file, redirect admin to set_area
 
@@ -388,7 +388,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         gamejson.readyForInstructions = true;
         findmodule.writeFile(code, gamejson);
         waitingForHost.emit(`ready_for_instructions/${code}`);
-        res.end(JSON.stringify(`http://localhost:8000/${task}_instructions/${code}?id=0`));
+        res.end(JSON.stringify(`/${task}_instructions/${code}?id=0`));
     });
 
     
@@ -447,8 +447,14 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
     app.get('/display_map/:code', (req, res) => {
         const code = req.params.code;
-        const gamejson = findmodule.readFile(code);
-        res.end(JSON.stringify(gamejson));
+        if (fs.readdirSync('./current_games').find((game) => {Number(game) === code})) {
+            //console.log('found');
+            const gamejson = findmodule.readFile(code);
+            res.end(JSON.stringify(gamejson));
+        } else {
+            res.status(500);
+            res.end();
+        };
     });
 
     app.get('/time/:code', (req, res) => {

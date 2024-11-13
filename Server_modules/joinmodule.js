@@ -28,7 +28,7 @@ function addNewPlayer(code, username) {
             newgamesjson[gameIndex].players.push(newPlayer)
             fs.writeFileSync('./Json/new_games.json', JSON.stringify(newgamesjson));
 
-            returnObject = {check: true, response: `http://localhost:8000/lobby/${code}?id=${newPlayer.id}`};
+            returnObject = {check: true, response: `/lobby/${code}?id=${newPlayer.id}`};
         } else {
             returnObject = {check: false, response: 'This name is already taken, please pick another one.'};
         };

@@ -58,7 +58,7 @@ sse.onmessage = function (res) {
     } else if (response.newHost) {
         if (response.newHost === username) {
             alert('You are the new host of this game. ');
-            window.location.replace(`http://localhost:8000/play/${code}?id=0&task=${task}`);
+            window.location.replace(`/play/${code}?id=0&task=${task}`);
         } else {
             alert(`${response.exit} is the new host of this game.`);
             window.location.reload();
@@ -67,10 +67,10 @@ sse.onmessage = function (res) {
         sse.close();
         document.body.innerHTML = `<p> ${response.gameover} If you want to play another game, just "create" or "join" a "new game".</p>`
         setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         }, 5000);
     } else if (response.checkSeekersReady) {
-        console.log('seeker message')
+        //console.log('seeker message')
         if (response.checkSeekersReady === 'Y') {
             checkSeekersReady = true;
             if (task === 'seeker') {
@@ -80,9 +80,9 @@ sse.onmessage = function (res) {
                 alert('Seekers are now hunting you!');
             };
         } else {
-            console.log(task);
+            //console.log(task);
             if (task === 'seeker') {
-                console.log(timeUpdate);
+                //console.log(timeUpdate);
                 waitSeeker(Math.round(gamejson.time) / 12 - timeUpdate, task, dom('.display-waiting-time'));
             } else {
                 alert(`You have ${transformTime(gamejson.time/12000)} minutes to run away before the seekers start hunting you.`)
@@ -90,12 +90,12 @@ sse.onmessage = function (res) {
         }
     } else {
         if (response.update) {
-            console.log('timeupdate');
+            //console.log('timeupdate');
             timeUpdate = response.update;
             const updatedTime = (gamejson.time - timeUpdate)/1000;
             clearInterval(timeInterval);
             timeInterval = displayTime(updatedTime, dom('.display-time'));
-            console.log(response.update);
+            //console.log(response.update);
             if (response.update%90000 === 0) {
                 if (task === 'seeker') {
                     dom('.display-message').innerHTML = 'Runaway locations Update!';
@@ -111,7 +111,7 @@ sse.onmessage = function (res) {
             };
         };
         if (response.players) {
-            console.log([coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout]);
+            //console.log([coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout]);
             checkDistance(coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
             markerslayer = displayPlayers(response.players, map, seekerMarkersLayer, runawayMarkersLayer);
             runawayMarkersLayer = markerslayer.runawayMarkersLayer;
@@ -181,9 +181,9 @@ function getGameInfo (xhr) {
     xhr.open('GET', `/display_map/${code}`, false);
     xhr.send();
     if (xhr.status === 500) {
-        document.body.innerHTML = 'Game does not exist anymore.'
+        document.body.innerHTML = 'Game does no longer exist.'
         setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         }, 2000);
     };
     return JSON.parse(xhr.response);
@@ -199,7 +199,7 @@ function getUsername (gamejson, id) {
 function waitSeeker (time, task, dom) {
     if (task === 'seeker') {
         document.getElementById('dialog-wait-seeker').showModal();
-        console.log(time);
+        //console.log(time);
         waitInterval = displayTime(time / 1000, dom);
     };
 };
@@ -295,7 +295,7 @@ function displayPlayers (players, map, runawayMarkersLayer, seekerMarkersLayer) 
 
 function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insideArea, outsideTimeout) {
     if (task === 'runaway' && checkSeekersReady) {
-        console.log('checking');
+        //console.log('checking');
         players.forEach((player) => {
             if (player.coordinates) {
                 if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 5) {

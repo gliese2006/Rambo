@@ -8,7 +8,7 @@ sse.onmessage = function (response) {
     if (res === 'canceled') {
         document.body.innerHTML = '<p> Host canceled game! </p>';
         setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         }, 2000);
     } else {
         window.location.replace(res);

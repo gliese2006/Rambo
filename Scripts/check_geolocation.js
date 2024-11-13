@@ -57,9 +57,9 @@ setInterval(() => {
 xhr.open('GET', `/display_map/${code}`, false);
 xhr.send();
 if (xhr.status === 500) {
-    document.body.innerHTML = 'Game does not exist anymore.'
+    document.body.innerHTML = 'Game does no longer exist.'
     setTimeout(() => {
-        window.location.replace('http://localhost:8000/');
+        window.location.replace('/');
     }, 2000);
 };
 
@@ -94,23 +94,23 @@ sse.onmessage = (res) => {
         document.body.innerHTML = '<p> Host canceled game! </p>'
         sse.close();
         setTimeout(() => {
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         }, 2000);
     } else if (response.exit) {
         alert(`${response.exit} exited the game.`);
     } else if (response === 'ready') {
-        console.log('ready');
-        window.location.replace(`http://localhost:8000/play/${code}?id=${id}&task=${task}`);
+        //console.log('ready');
+        window.location.replace(`/play/${code}?id=${id}&task=${task}`);
         sse.close();
     } else {
-        console.log(response);
+        //console.log(response);
         if (response.players) {
             const players = response.players;
 
             if (playerMarkersLayer) {
-                console.log(playerMarkersLayer);
+                //console.log(playerMarkersLayer);
                 playerMarkersLayer.clearLayers();
-                console.log(playerMarkersLayer);
+                //console.log(playerMarkersLayer);
             };
 
             playerMarkersLayer = L.layerGroup().addTo(map);
@@ -161,7 +161,7 @@ if (id) {
             sse.close();
             xhr.open('GET', `/exit/${code}?id=${id}&place=check_geolocation`, true);
             xhr.send();
-            window.location.replace('http://localhost:8000/');
+            window.location.replace('/');
         };
     });
 };
