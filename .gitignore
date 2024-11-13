@@ -1,5 +1,5 @@
-current_games
-Json
+current_games(localhost)
+Json(localhost)
 # Logs
 logs
 *.log
