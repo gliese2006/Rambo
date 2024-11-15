@@ -59,8 +59,6 @@ const checkGeolocationjs = fs.readFileSync('./Scripts/check_geolocation.js');
 
 const playhtml = fs.readFileSync('./HTML/play.html');
 const playjs = fs.readFileSync('./Scripts/play.js');
-const testjs = fs.readFileSync('./Scripts/test.mjs');
-const playcustomized = fs.readFileSync('./Scripts/Scripts_modules/play_customized.js');
 
 //selfmade modules
 const findmodule = require('./Server_modules/find');
@@ -447,8 +445,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
     app.get('/display_map/:code', (req, res) => {
         const code = req.params.code;
-        if (fs.readdirSync('./current_games').find((game) => {Number(game) === code})) {
-            //console.log('found');
+        if (fs.readdirSync('./current_games').find((game) => {return game === code})) {
             const gamejson = findmodule.readFile(code);
             res.end(JSON.stringify(gamejson));
         } else {

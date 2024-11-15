@@ -6,7 +6,7 @@ module.exports.addNewPlayer = addNewPlayer;
 
 
 function addNewPlayer(code, username) {
-    const newgamesjson = JSON.parse(fs.readFileSync('./Json/new_games.json'));
+    const newgamesjson = JSON.parse(fs.readFileSync('./current_games/new_games.json'));
     let returnObject;
     let gameIndex = findmodule.findGame(code, newgamesjson);
 
@@ -26,7 +26,7 @@ function addNewPlayer(code, username) {
             };
 
             newgamesjson[gameIndex].players.push(newPlayer)
-            fs.writeFileSync('./Json/new_games.json', JSON.stringify(newgamesjson));
+            fs.writeFileSync('./current_games/new_games.json', JSON.stringify(newgamesjson));
 
             returnObject = {check: true, response: `/lobby/${code}?id=${newPlayer.id}`};
         } else {

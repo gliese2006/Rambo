@@ -14,7 +14,7 @@ function createCode () {
 };
 
 function createNewGame (code, username) {
-    const newgamesjson = JSON.parse(fs.readFileSync('./Json/new_games.json'));
+    const newgamesjson = JSON.parse(fs.readFileSync('./current_games/new_games.json'));
     const newGameObject = {
         code,
         players: [
@@ -27,5 +27,5 @@ function createNewGame (code, username) {
     
     newgamesjson.push(newGameObject);
 
-    fs.writeFileSync('./Json/new_games.json', JSON.stringify(newgamesjson));
+    fs.writeFileSync('./current_games/new_games.json', JSON.stringify(newgamesjson));
 };

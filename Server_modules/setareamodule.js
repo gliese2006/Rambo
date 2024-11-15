@@ -7,12 +7,12 @@ module.exports.addArea = addArea;
 
 //create json file for file
 function addCurrentGame (code) {
-    const newgamesjson = JSON.parse(fs.readFileSync('./Json/new_games.json'));
+    const newgamesjson = JSON.parse(fs.readFileSync('./current_games/new_games.json'));
     let gameIndex = findmodule.findGame(code, newgamesjson);
     if (typeof gameIndex === 'number') {
         const game = newgamesjson[gameIndex];
         newgamesjson.splice(gameIndex, 1);
-        fs.writeFileSync('./Json/new_games.json', JSON.stringify(newgamesjson));
+        fs.writeFileSync('./current_games/new_games.json', JSON.stringify(newgamesjson));
         fs.writeFileSync(`./current_games/${code}`, JSON.stringify(game));
     };
 };
