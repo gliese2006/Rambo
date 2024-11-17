@@ -3,9 +3,14 @@ const express = require('express');
 const fs = require('fs');
 const EventEmitter = require('events');
 const newPlayerEmitter = new EventEmitter();
+newPlayerEmitter.setMaxListeners(20)
 const waitingForHost = new EventEmitter();
+waitingForHost.setMaxListeners(20)
 const newCoordinates = new EventEmitter();
+newCoordinates.setMaxListeners(20)
 const play = new EventEmitter();
+play.setMaxListeners(20)
+
 const app = express();
 app.use(express.json());
 //app.use(cors({origin: ['http://localhost:8000', 'http://127.0.0.1:8000']}));
@@ -537,6 +542,10 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         play.emit(`disqualified/${code}`, username);
         timers = geolocationmodule.checkRunawayNumber(code, timers, play);
         res.end();
+    });
+
+    app.post('/change_host/:code', (req, res) => {
+        
     });
 
 

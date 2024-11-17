@@ -41,7 +41,7 @@ setInterval(() => {
         alert(`${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.`);
         dom('.display-message').innerHTML = `<p>${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.</p>`;
     };
-}, 5000);
+}, 3000);
 
 //sse
 sse.onmessage = function (res) {    
@@ -83,35 +83,47 @@ sse.onmessage = function (res) {
             //console.log(task);
             if (task === 'seeker') {
                 //console.log(timeUpdate);
-                waitSeeker(Math.round(gamejson.time) / 12 - timeUpdate, task, dom('.display-waiting-time'));
+                waitSeeker(Math.round(gamejson.time / 12) - timeUpdate, dom('.display-waiting-time'));
             } else {
-                alert(`You have ${transformTime(gamejson.time/12000)} minutes to run away before the seekers start hunting you.`)
+                alert(`You have ${transformTime(gamejson.time/12000)} to run away before the seekers start hunting you.`)
             };
         }
     } else {
         if (response.update) {
-            //console.log('timeupdate');
-            timeUpdate = response.update;
-            const updatedTime = (gamejson.time - timeUpdate)/1000;
-            clearInterval(timeInterval);
-            timeInterval = displayTime(updatedTime, dom('.display-time'));
-            //console.log(response.update);
-            if (response.update%90000 === 0) {
+            if (!checkSeekersReady) {
+                timeUpdate = response.update;
+                const updatedTime = (gamejson.time - timeUpdate)/1000;
+                clearInterval(timeInterval);
+                timeInterval = displayTime(updatedTime, dom('.display-time'));
+
                 if (task === 'seeker') {
-                    dom('.display-message').innerHTML = 'Runaway locations Update!';
-                    setTimeout(() => {
-                        dom('.display-message').innerHTML = '';
-                    }, 5000);
-                } else {
-                    dom('.display-message').innerHTML = 'Seekers know your current position.'
-                    setTimeout(() => {
-                        dom('.display-message').innerHTML = '';
-                    }, 5000);
-                }
-            };
+                    waitSeeker(Math.round(gamejson.time / 12) - timeUpdate, dom('.display-waiting-time'));
+                };
+            } else {
+                //console.log('timeupdate');
+                timeUpdate = response.update;
+                const updatedTime = (gamejson.time - timeUpdate)/1000;
+                clearInterval(timeInterval);
+                timeInterval = displayTime(updatedTime, dom('.display-time'));
+                //console.log(response.update);
+                if (response.update%90000 === 0) {
+                    if (task === 'seeker') {
+                        dom('.display-message').innerHTML = 'Runaway locations Update!';
+                        setTimeout(() => {
+                            dom('.display-message').innerHTML = '';
+                        }, 5000);
+                    } else {
+                        dom('.display-message').innerHTML = 'Seekers know your current position.'
+                        setTimeout(() => {
+                            dom('.display-message').innerHTML = '';
+                        }, 5000);
+                    }
+                };
+            }
         };
         if (response.players) {
             //console.log([coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout]);
+            gamejson.players = response.players;
             checkDistance(coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
             markerslayer = displayPlayers(response.players, map, seekerMarkersLayer, runawayMarkersLayer);
             runawayMarkersLayer = markerslayer.runawayMarkersLayer;
@@ -128,7 +140,7 @@ if (id) {
             sse.close();
             xhr.open('GET', `/exit/${code}?id=${id}&username=${username}&place=play`, true);
             xhr.send();
-            window.location.replace('http://localhost:8000');
+            window.location.replace('/');
         } else {
             window.location.reload();
         };
@@ -147,18 +159,20 @@ if (id === 0) {
         };
     });
     dom('.button-change-host').addEventListener('click', () => {
-        dom('.display-select-host').innerHTML = selectNewHost;
+        dom('.display-select-host').innerHTML = selectNewHost(gamejson);
         dom('#dialog-select-host').showModal();
-        dom('.button-cancel-game').addEventListener('click', () => {
-            xhr.open('GET', `/cancel/${code}`);
-            xhr.send();
-        });
         dom('.button-confirm-host').addEventListener('click', () => {
             if (dom('#new-host').value) {
-                xhr.open('POST', `/change_host/${code}?place=play`, false);
-                xhr.setRequestHeader('Content-type', 'application/json');
-                const data = JSON.stringify(dom('#new-host').value);
-                xhr.send(data);
+                /*if (confirm(`Please confirm your exit and ${dom('#new-host').value} as a new host.`)) {
+                    sse.close();
+                    xhr.open('GET', `/exit/${code}?id=${id}&username=${username}&place=play`, true);
+                    xhr.send();
+                    xhr.open('POST', `/change_host/${code}?place=play`, false);
+                    xhr.setRequestHeader('Content-type', 'application/json');
+                    const data = JSON.stringify(dom('#new-host').value);
+                    xhr.send(data);
+                    window.location.replace('/');
+                };*/
             } else {
                 dom('.display-message').innerHTML = 'Please select a new host.'
             }
@@ -196,7 +210,7 @@ function getUsername (gamejson, id) {
     return player.username;
 };
 
-function waitSeeker (time, task, dom) {
+function waitSeeker (time, dom) {
     if (task === 'seeker') {
         document.getElementById('dialog-wait-seeker').showModal();
         //console.log(time);
@@ -223,7 +237,9 @@ function transformTime (time) {
 function selectNewHost (gamejson) {
     let playershtml = '<label>Select the new host:</label> <select id="new-host"> <option> </option>';
     gamejson.players.forEach((player) => {
-        playershtml += `<option value="${player.username}">${player.username}</option>`;
+        if (player.id !== id) {
+            playershtml += `<option value="${player.username}">${player.username}</option>`;
+        };
     });
     return playershtml +'</select>';
 };
@@ -303,7 +319,7 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
                     alert('You are caught! You can either join a seeker or wait for the game to finish.')
                     xhr.open('GET', `/lost_game/${gamejson.code}?id=${id}`);
                     xhr.send();
-                    window.location.replace('http://localhost:8000');
+                    window.location.replace('/');
                 };
             };
         });
@@ -317,7 +333,7 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
                 alert('1 minute is over - you are disqualified! You can either join a seeker or wait for the game to finish.')
                 xhr.open(`/disqualified/${gamejson.code}?id=${id}`);
                 xhr.send();
-                window.location.replace('http://localhost:8000');
+                window.location.replace('/');
             }, 60000);
         };
     } else {
