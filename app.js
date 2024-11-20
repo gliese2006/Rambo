@@ -160,6 +160,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                     players = geolocationmodule.findAllPlayersWithTask(geolocationmodule.saveCoordinates(gamejson, id, coordinates), 'seeker');
                 };
             };
+            console.log(update);
             if (update) {
                 console.log(`update ${code}`);
                 const timer = timers.find((timer) => {return timer.code === code});
@@ -461,9 +462,12 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         const id = Number(req.query.id);
         const place = req.query.place;
         const coordinates = req.body.coordinates;
+        console.log(place);
         if (place === 'check_geolocation') {
+            console.log('new coordinates check geolocation');
             newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, true);
         } else {
+            console.log('new coordinates false');
             newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, false);
         };
         res.end();
@@ -497,6 +501,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             }, 1000);
             const runawayUpdate = setInterval(() => {
                 countUpdates ++;
+                console.log('actual update');
                 newCoordinates.emit(`new_coordinates/${code}`, undefined, undefined, countUpdates * 90000);
             }, 90000);
             let waitToDelete;
