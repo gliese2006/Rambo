@@ -22,9 +22,13 @@ if (stat) {
 
 //send geolocation
 if (document.getElementById('buttons')) {
-if (id !== 0 && !stat) {
-    alert('To play this game, this website needs to locate you. Please permit geolocation.');
-};
+//if (window.navigator.getCurrentPosition) {
+    window.navigator.permissions.query({name: 'geolocation'}).then((PermissionStatus) => {
+        if (id !== 0 && !stat && PermissionStatus.state !== "granted") {
+            alert('To play this game, this website needs to locate you. Please permit geolocation.');
+        };
+    });
+//}
 };
 
 setInterval(() => {
@@ -97,7 +101,7 @@ sse.onmessage = (res) => {
             window.location.replace('/');
         }, 2000);
     } else if (response.exit) {
-        alert(`${response.exit} exited the game.`);
+        alert(response.exit.username + response.exit.message);
     } else if (response === 'ready') {
         //console.log('ready');
         window.location.replace(`/play/${code}?id=${id}&task=${task}`);

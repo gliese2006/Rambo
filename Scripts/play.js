@@ -6,10 +6,11 @@ const code = window.location.pathname.split('/play/')[1];
 const search = new URLSearchParams(window.location.search);
 const id = Number(search.get('id'));
 const task = search.get('task');
-let coordinates, map, markerslayer, insideArea = true, outsideTimeout, timeInterval, waitInterval, checkCentered, timeUpdate, checkSeekersReady;
+let coordinates, map, insideArea = true, outsideTimeout, timeInterval, waitInterval, checkCentered, timeUpdate, checkSeekersReady;
 
 const xhr = new XMLHttpRequest();
 const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}`);
+//const worker = new Worker()
 const gamejson = getGameInfo(xhr);
 const username = getUsername(gamejson, id);
 map = createMap(gamejson, map);
@@ -47,24 +48,26 @@ setInterval(() => {
 sse.onmessage = function (res) {    
     const response = JSON.parse(res.data);
     if (response.exit) {
-            alert (response.exit.username + response.exit.message);
-            window.location.reload();
+        const playerIndex = gamejson.players.findIndex((player) => {player.username === response.exit.username});
+        gamejson.players.splice(playerIndex, 1);
+        alert (response.exit.username + response.exit.message);
     /*} else if (response.confirm) {
         if (id === 0) {
             confirmExit(code, response.confirm[0], response.confirm[1], xhr);
         } else if (id) {
             confirmCancel(code, id, xhr);
         }*/
-    } else if (response.newHost) {
-        if (response.newHost === username) {
+    } else if (response.newHostId) {
+        if (response.newHostId === id) {
             alert('You are the new host of this game. ');
             window.location.replace(`/play/${code}?id=0&task=${task}`);
         } else {
-            alert(`${response.exit} is the new host of this game.`);
+            const player = gamejson.players.find((player) => {return player.id === response.newHostId});
+            alert(`${player.username} is the new host of this game.`);
             window.location.reload();
         };
     } else if (response.gameover) {
-        sse.close();
+        //sse.close();
         document.body.innerHTML = `<p> ${response.gameover} If you want to play another game, just "create" or "join" a "new game".</p>`
         setTimeout(() => {
             window.location.replace('/');
@@ -76,16 +79,17 @@ sse.onmessage = function (res) {
             if (task === 'seeker') {
                 document.getElementById('dialog-wait-seeker').close();
                 //clearInterval(timeInterval); timeInterval ist sowieso nicht überall das gleiche
-            } else {
+            } else if (timeUpdate - Math.round(gamejson.time / 12) < 60000) {
                 alert('Seekers are now hunting you!');
             };
+            //console.log(timeUpdate - Math.round(gamejson.time / 12))
         } else {
             //console.log(task);
             if (task === 'seeker') {
                 //console.log(timeUpdate);
                 waitSeeker(Math.round(gamejson.time / 12) - timeUpdate, dom('.display-waiting-time'));
             } else {
-                alert(`You have ${transformTime(gamejson.time/12000)} to run away before the seekers start hunting you.`)
+                alert(`You have ${transformTime((Math.round(gamejson.time / 12) - timeUpdate) / 1000)} to run away before the seekers start hunting you.`)
             };
         }
     } else {
@@ -93,7 +97,9 @@ sse.onmessage = function (res) {
             if (!checkSeekersReady) {
                 timeUpdate = response.update;
                 const updatedTime = (gamejson.time - timeUpdate)/1000;
+                //console.log(timeInterval);
                 clearInterval(timeInterval);
+                //console.log(timeInterval);
                 timeInterval = displayTime(updatedTime, dom('.display-time'));
 
                 if (task === 'seeker') {
@@ -123,9 +129,10 @@ sse.onmessage = function (res) {
         };
         if (response.players) {
             //console.log([coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout]);
-            gamejson.players = response.players;
-            checkDistance(coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
-            markerslayer = displayPlayers(response.players, map, seekerMarkersLayer, runawayMarkersLayer);
+            
+            //gamejson.players = response.players; outcommented so that host can also choose runaways as new hosts
+            insideArea = checkDistance(coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
+            const markerslayer = displayPlayers(response.players, runawayMarkersLayer, seekerMarkersLayer);
             runawayMarkersLayer = markerslayer.runawayMarkersLayer;
             seekerMarkersLayer = markerslayer.seekerMarkersLayer;
         };
@@ -163,16 +170,17 @@ if (id === 0) {
         dom('#dialog-select-host').showModal();
         dom('.button-confirm-host').addEventListener('click', () => {
             if (dom('#new-host').value) {
-                /*if (confirm(`Please confirm your exit and ${dom('#new-host').value} as a new host.`)) {
+                if (confirm(`Please confirm your exit and ${dom('#new-host').value} as a new host.`)) {
                     sse.close();
-                    xhr.open('GET', `/exit/${code}?id=${id}&username=${username}&place=play`, true);
-                    xhr.send();
                     xhr.open('POST', `/change_host/${code}?place=play`, false);
                     xhr.setRequestHeader('Content-type', 'application/json');
-                    const data = JSON.stringify(dom('#new-host').value);
+                    const player = gamejson.players.find((player) => {return player.username === dom('#new-host').value});
+                    const data = JSON.stringify({id: player.id});
                     xhr.send(data);
+                    xhr.open('GET', `/exit/${code}?id=${id}&username=${username}&place=play`, true);
+                    xhr.send();
                     window.location.replace('/');
-                };*/
+                };
             } else {
                 dom('.display-message').innerHTML = 'Please select a new host.'
             }
@@ -282,7 +290,7 @@ function createMap (gamejson, map) {
     return map;
 };
 
-function displayPlayers (players, map, runawayMarkersLayer, seekerMarkersLayer) {
+function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
     players.forEach((player) => {
         if (player.coordinates) {
             if (player.task === 'seeker') {
@@ -316,16 +324,16 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
             if (player.coordinates) {
                 if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 5) {
                     sse.close();
-                    alert('You are caught! You can either join a seeker or wait for the game to finish.')
                     xhr.open('GET', `/lost_game/${gamejson.code}?id=${id}`);
                     xhr.send();
+                    alert('You are caught! You can either join a seeker or wait for the game to finish.')
                     window.location.replace('/');
                 };
             };
         });
     };
     if (insideArea) {
-        if (map.distance(gamejson.area.coordinates, coordinates) > gamejson.area.radius) {
+        if (gamejson.area.coordinates && coordinates && map.distance(gamejson.area.coordinates, coordinates) > gamejson.area.radius) {
             alert('You are outside of the playing area, you have 1 minute to return, otherwhise you will be disqualified.');
             insideArea = false;
             outsideTimeout = setTimeout(() => {
@@ -342,7 +350,8 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
             clearTimeout(outsideTimeout);
             window.location.reload();
         };
-    }
+    };
+    return insideArea;
 };
 
 function centerUserPosition (map, coordinates, dom, checkCentered) {
@@ -358,4 +367,4 @@ function centerUserPosition (map, coordinates, dom, checkCentered) {
     return checkCentered;
 };
 
-//error letzter ready exit, error module im client, timeupdate, sse locations, Durcheinander, github, res.redirect()
+//error letzter ready exit, error module im client, timeupdate, sse locations oder lieber post, Durcheinander, github, res.redirect()

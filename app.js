@@ -3,26 +3,27 @@ const express = require('express');
 const fs = require('fs');
 const EventEmitter = require('events');
 const newPlayerEmitter = new EventEmitter();
-newPlayerEmitter.setMaxListeners(20)
+newPlayerEmitter.setMaxListeners(100);
 const waitingForHost = new EventEmitter();
-waitingForHost.setMaxListeners(20)
+waitingForHost.setMaxListeners(100);
 const newCoordinates = new EventEmitter();
-newCoordinates.setMaxListeners(20)
+newCoordinates.setMaxListeners(100);
 const play = new EventEmitter();
-play.setMaxListeners(20)
+play.setMaxListeners(100);
 
 const app = express();
 app.use(express.json());
 //app.use(cors({origin: ['http://localhost:8000', 'http://127.0.0.1:8000']}));
 let timers = [];
 class addTimer {
-    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady) {
+    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, runawayLocationsUpdate) {
         this.code = code;
         this.countSeconds = countSeconds;
         this.runawayUpdate = runawayUpdate;
         this.gameOver = gameOver;
         this.waitToDelete = waitToDelete;
         this.seekersReady = seekersReady;
+        this.runawayLocationsUpdate = runawayLocationsUpdate;
     };
 };
 
@@ -126,7 +127,9 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         
         play.on(`countTime/${code}`, (countSec) => {
             if (!firstTimeUpdate) {
-                res.write("data: " + `${JSON.stringify({players: undefined, update: countSec * 1000})}\n\n`);
+                const timer = timers.find((timer) => {return timer.code === code});
+                const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
+                res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
 
                 if (gamejson.checkSeekersReady) {
@@ -147,24 +150,34 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         newCoordinates.on(`new_coordinates/${code}`, (coordinates, id, update) => {
             let players;
             if (typeof id === 'number') {
-                if (update || req.query.task === 'runaway') {
+                if (req.query.task === 'runaway') {
                     players = geolocationmodule.saveCoordinates(gamejson, id, coordinates);
                 } else if (req.query.task === 'seeker') {
-                    players = geolocationmodule.findSeekers(geolocationmodule.saveCoordinates(gamejson, id, coordinates));
+                    players = geolocationmodule.findAllPlayersWithTask(geolocationmodule.saveCoordinates(gamejson, id, coordinates), 'seeker');
                 };
             };
+            if (update) {
+                const timer = timers.find((timer) => {return timer.code === code});
+                if (timer) {
+                    timer.runawayLocationsUpdate = geolocationmodule.findAllPlayersWithTask(gamejson.players, 'runaway');
+                    players = timer.runawayLocationsUpdate;
+                } else {
+                    players = gamejson.players;
+                }
+            };
             res.write("data: " + `${JSON.stringify({players, update})}\n\n`);
+        });
+        newCoordinates.on(`tryready/${code}`, () => {
+            res.write("data: " + `${JSON.stringify('ready')}\n\n`);
+            //console.log(req.query.id);
         });
         newCoordinates.on(`ready/${code}`, (id) => {
             if (id) {
                 readyList = geolocationmodule.setReady(readyList, id);
             };
-            /*console.log(readyList);
-            console.log(`ready ${readyList.length} ${req.query.id}`);
-            console.log(`gamejson ${gamejson.players.length} ${req.query.id}`);*/
             if (readyList.length === gamejson.players.length) {
                 //console.log(req.query.id);
-                res.write("data: " + `${JSON.stringify('ready')}\n\n`);
+                newCoordinates.emit(`tryready/${code}`);
             };
         });
         newCoordinates.on(`canceled_game/${code}`, () => {
@@ -180,16 +193,19 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             findmodule.writeFile(code, gamejson);
             newCoordinates.emit(`reread/${code}`);
         });
+        play.on(`newHost/${code}`, (newHostId) => {
+            res.write("data: " + `${JSON.stringify({newHostId})}\n\n`);
+        });
         play.on(`lost_game/${code}`, (username) => {
-            "data: " + `${JSON.stringify({exit: {username, message: ' was caught.'}})}\n\n`
+            res.write("data: " + `${JSON.stringify({exit: {username, message: ' was caught.'}})}\n\n`);
         });
         play.on(`disqualified/${code}`, (username) => {
-            res.write("data: " + `${JSON.stringify({exit: {username, message: ' was disqualified.'}})}\n\n`)
+            res.write("data: " + `${JSON.stringify({exit: {username, message: ' was disqualified.'}})}\n\n`);
         });
         play.on(`gameOver/${code}`, (message) => {
             gamejson.gameOver = true;
             findmodule.writeFile(code, gamejson);
-            newCoordinates.emit(`reread/${code}`);
+            //newCoordinates.emit(`reread/${code}`);
             res.write("data: " + `${JSON.stringify({gameover: message})}\n\n`);
             res.end();
         });
@@ -242,7 +258,6 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         const responseNewPlayer = joinmodule.addNewPlayer(code, username);
         if (responseNewPlayer.check) {
             newPlayerEmitter.emit(`newPlayer/${code}`);
-            //console.log(`newPlayer/${code}`)
         };
         res.write(JSON.stringify(responseNewPlayer));
         res.end();
@@ -301,8 +316,9 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
         if (place === 'check_geolocation') {
             newCoordinates.emit(`ready/${code}`);
+        } else {
+            timers = geolocationmodule.checkRunawayNumber(code, timers, play);
         };
-        timers = geolocationmodule.checkRunawayNumber(code, timers, play);
         res.end();
     });
 
@@ -462,7 +478,6 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     app.get('/time/:code', (req, res) => {
         const code = req.params.code;
         let gamejson = findmodule.readFile(code);
-        //console.log(gamejson.gameRunning);
         if (!gamejson.gameRunning) {
             //playing time
             let countUpdates = 0;
@@ -495,7 +510,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             const seekersReady = setTimeout(() => {
                 play.emit(`seekersReady/${code}`);
             }, gamejson.time/12);
-            const timer = new addTimer (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady);
+            const timer = new addTimer (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, false);
             //const timer = new addTimer (1, 2, 3, 4, 5, 6);
             const hello = {hello1: 1, hello: 2};
             //console.log(timer.code);
@@ -545,7 +560,13 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     });
 
     app.post('/change_host/:code', (req, res) => {
-        
+        const code = req.params.code;
+        const newHostId = req.body.id;
+        const gamejson = findmodule.readFile(code);
+        gamejson.players[newHostId].id = 0;
+        findmodule.writeFile(code, gamejson);
+        play.emit(`newHost/${code}`, newHostId);
+        res.end();
     });
 
 
