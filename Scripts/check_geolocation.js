@@ -9,7 +9,7 @@ const id = Number(search.get('id'));
 const stat = search.get('status');
 const task = search.get('task');
 
-const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}`);
+const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}&place=check_geolocation`);
 
 let playerMarkersLayer, coordinates, center, map, checkZone, checkCentered;
 

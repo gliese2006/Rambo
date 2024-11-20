@@ -124,11 +124,15 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         let gamejson = findmodule.readFile(code);
         let readyList = [];
         res.setHeader('Content-type', 'text/event-stream');
+        if (gamejson.gameRunning && req.query.place === 'check_geolocation') {
+            res.write("data: " + `${JSON.stringify('ready')}\n\n`);
+        };
         
         play.on(`countTime/${code}`, (countSec) => {
             if (!firstTimeUpdate) {
                 const timer = timers.find((timer) => {return timer.code === code});
                 const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
+                console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
 
@@ -157,6 +161,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                 };
             };
             if (update) {
+                console.log(`update ${code}`);
                 const timer = timers.find((timer) => {return timer.code === code});
                 if (timer) {
                     timer.runawayLocationsUpdate = geolocationmodule.findAllPlayersWithTask(gamejson.players, 'runaway');
@@ -169,7 +174,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         });
         newCoordinates.on(`tryready/${code}`, () => {
             res.write("data: " + `${JSON.stringify('ready')}\n\n`);
-            //console.log(req.query.id);
+            console.log(req.query.id);
         });
         newCoordinates.on(`ready/${code}`, (id) => {
             if (id) {
@@ -184,7 +189,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             res.write("data: " + `${JSON.stringify('canceled')}\n\n`);
             res.end();
         });
-        newCoordinates.on(`exited_game/${code}`, (username, id) => {
+        newCoordinates.on(`exited_game/${code}`, (username) => {
                 res.write("data: " + `${JSON.stringify({exit: {username, message: ' exited the game.'}})}\n\n`);
         });
         play.on(`seekersReady/${code}`, () => {
@@ -311,7 +316,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
             gamejson.players.splice(i, 1);
         });
         
-        newCoordinates.emit(`exited_game/${code}`, username, id);
+        newCoordinates.emit(`exited_game/${code}`, username);
         newCoordinates.emit(`reread/${code}`);
 
         if (place === 'check_geolocation') {
