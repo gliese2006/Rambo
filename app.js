@@ -160,9 +160,8 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                     players = geolocationmodule.findAllPlayersWithTask(geolocationmodule.saveCoordinates(gamejson, id, coordinates), 'seeker');
                 };
             };
-            console.log(update);
             if (update) {
-                console.log(`update ${code}`);
+                console.log(update + code);
                 const timer = timers.find((timer) => {return timer.code === code});
                 if (timer) {
                     timer.runawayLocationsUpdate = geolocationmodule.findAllPlayersWithTask(gamejson.players, 'runaway');
@@ -462,12 +461,9 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         const id = Number(req.query.id);
         const place = req.query.place;
         const coordinates = req.body.coordinates;
-        console.log(place);
         if (place === 'check_geolocation') {
-            console.log('new coordinates check geolocation');
             newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, true);
         } else {
-            console.log('new coordinates false');
             newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, false);
         };
         res.end();
@@ -515,6 +511,13 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                 clearInterval(runawayUpdate);
                 clearInterval(countSeconds);
             }, gamejson.time);
+
+            let count = 0;
+            setInterval(() => {
+                const coordinates = timers[0].runawayLocationsUpdate ? timers[0].runawayLocationsUpdate[0].coordinates : timers[0].runawayLocationsUpdate;
+                console.log(count + ': ' + coordinates);
+                count ++;
+            }, 1000);
 
             //wait seeker time
             const seekersReady = setTimeout(() => {
