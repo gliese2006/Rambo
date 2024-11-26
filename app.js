@@ -233,6 +233,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     });
 
     app.get('/home.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
         res.end(homecss);
     });
 
@@ -241,6 +242,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     });
 
     app.get('/header.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
         res.end(headercss);
     });
 
@@ -259,6 +261,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     });
 
     app.get('/new.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
         res.end(newcss);
     });
 
@@ -280,6 +283,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     });
 
     app.get('/join.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
         res.end(joincss);
     });
 
@@ -309,6 +313,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     });
 
     app.get('/lobby.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
         res.end(lobbycss);
     });
 
