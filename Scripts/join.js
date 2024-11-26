@@ -24,6 +24,9 @@ dom('.button-submit').addEventListener('click', () => {
         dom('.display-response').innerHTML = response.response;
         };
     } else {
-        dom('.display-response').innerHTML = 'Please enter a name.';
+        dom('.display-response').innerHTML = 'Please enter a username.';
     };
 });
+
+//adjusting body height
+dom('.content').style.height = `${screen.height - 90}px`;

@@ -30,14 +30,19 @@ class addTimer {
 
 //files
 const homehtml = fs.readFileSync('./HTML/home.html');
+const homecss = fs.readFileSync('./Style/home.css');
+const headerjs = fs.readFileSync('./Scripts/header.js');
+const headercss = fs.readFileSync('./Style/header.css');
 
 const instructionshtml = fs.readFileSync('./HTML/instructions.html')
 
 const newhtml = fs.readFileSync('./HTML/new.html');
 const newjs = fs.readFileSync('./Scripts/new.js');
+const newcss = fs.readFileSync('./Style/new.css');
 
 const joinhtml = fs.readFileSync('./HTML/join.html');
 const joinjs = fs.readFileSync('./Scripts/join.js');
+const joincss = fs.readFileSync('./Style/join.css');
 
 const lobbyhtml = fs.readFileSync('./HTML/lobby.html');
 const lobbyjs = fs.readFileSync('./Scripts/lobby.js');
@@ -161,7 +166,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
                 };
             };
             if (update) {
-                console.log(update + code);
+                console.log(update + ': ' + code);
                 const timer = timers.find((timer) => {return timer.code === code});
                 if (timer) {
                     timer.runawayLocationsUpdate = geolocationmodule.findAllPlayersWithTask(gamejson.players, 'runaway');
@@ -226,6 +231,18 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         res.end(homehtml);
     });
 
+    app.get('/home.css', (req, res) => {
+        res.end(homecss);
+    });
+
+    app.get('/header.js', (req, res) => {
+        res.end(headerjs);
+    });
+
+    app.get('/header.css', (req, res) => {
+        res.end(headercss);
+    });
+
 //request on instructions
     app.get('/instructions', (req, res) => {
         res.end(instructionshtml)
@@ -238,6 +255,10 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
     app.get('/new.js', (req, res) => {
         res.end(newjs);
+    });
+
+    app.get('/new.css', (req, res) => {
+        res.end(newcss);
     });
 
     app.post('/create_new_game', (req, res) => {
@@ -255,6 +276,10 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     
     app.get('/join.js', (req, res) => {
         res.end(joinjs);
+    });
+
+    app.get('/join.css', (req, res) => {
+        res.end(joincss);
     });
 
     app.post('/add_new_player', (req, res) => {

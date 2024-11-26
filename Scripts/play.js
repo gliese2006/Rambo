@@ -278,7 +278,7 @@ function createMap (gamejson, map) {
     map = L.map('map').setView(gamejson.area.coordinates, 12)
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 20,
+        maxZoom: 23,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
     const playingArea = L.circle(gamejson.area.coordinates, {
@@ -322,7 +322,7 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
         //console.log('checking');
         players.forEach((player) => {
             if (player.coordinates) {
-                if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 5) {
+                if (player.task === 'seeker' && map.distance(player.coordinates, coordinates) < 10) {
                     sse.close();
                     xhr.open('GET', `/lost_game/${gamejson.code}?id=${id}`);
                     xhr.send();

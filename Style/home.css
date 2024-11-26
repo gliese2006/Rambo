@@ -1,0 +1,12 @@
+.buttons-content {
+    display: flex;
+    justify-content: center;
+}
+
+.button-new, .button-join {
+    border: 1px solid black;
+    background-color: rgb(183, 183, 183);
+    height: 30px;
+    width: 150px;
+    margin: 5px;
+}

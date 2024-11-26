@@ -20,3 +20,7 @@ dom('.button-submit').addEventListener('click', () => {
         dom('.display-response').innerHTML = 'Please enter a name.';
     };
 });
+
+
+//adjusting body height
+dom('.content').style.height = `${screen.height - 90}px`;

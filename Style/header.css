@@ -1,0 +1,75 @@
+body {
+    margin: 0px;
+    margin-top: 90px;
+    border-radius: 0px;
+}
+
+.header {
+    height: 80px;
+    background-color: rgb(183, 183, 183);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    box-shadow: 0px 0.5px 5px black;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    cursor: pointer;
+    margin: 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.logo p {
+    font-size: 40px;
+}
+
+.menu {
+    width: 80px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    background-color: rgba(137, 137, 137, 0.1);
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 250px;
+    display: grid;
+    grid-template-rows: 80px 50px 50px 50px;
+    backdrop-filter: blur(10px);
+}
+
+.svg-close {
+    height: 100%;
+    width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.div-close, .div-new, .div-join, .div-instructions {
+    border-bottom: 1px solid black;
+}
+
+.div-new, .div-join, .div-instructions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.link-new:hover, .link-join:hover, .link-instructions:hover, .svg-close:hover, .menu:hover, .button-submit:hover {
+    background-color:lightgrey;
+    cursor: pointer;
+}
