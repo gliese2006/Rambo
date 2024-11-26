@@ -46,6 +46,7 @@ const joincss = fs.readFileSync('./Style/join.css');
 
 const lobbyhtml = fs.readFileSync('./HTML/lobby.html');
 const lobbyjs = fs.readFileSync('./Scripts/lobby.js');
+const lobbycss = fs.readFileSync('./Style/lobby.css');
 
 const waithtml = fs.readFileSync('./HTML/wait.html');
 const waitjs = fs.readFileSync('./Scripts/wait.js');
@@ -305,6 +306,10 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
     app.get('/lobby.js', (req, res) => {
         res.end(lobbyjs);
+    });
+
+    app.get('/lobby.css', (req, res) => {
+        res.end(lobbycss);
     });
 
     //app.get('/display_players/:code')

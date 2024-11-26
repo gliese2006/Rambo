@@ -10,8 +10,6 @@ function link (div, url) {
     });
 };
 
-let dropdown = false;
-
 //general look
 function hideDropdown () {
     dom('.dropdown-menu').style.display = 'none';

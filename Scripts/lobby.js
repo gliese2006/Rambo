@@ -2,6 +2,14 @@ const xhr = new XMLHttpRequest();
 function dom (c) {
     return document.querySelector(c);
 };
+function link (div, url) {
+    document.querySelectorAll(div).forEach((element) => {
+        element.addEventListener('click', () => {
+            hideDropdown();
+            window.location.href = url;
+        });
+    });
+};
 const search = new URLSearchParams(window.location.search);
 const id = Number(search.get('id'));
 const code = window.location.pathname.split('/lobby/');
@@ -22,9 +30,9 @@ function addPlayer (players) {
     htmlplayers = '';
     players.forEach((player) => {
             if (player.id === id) {
-                htmlplayers += '<p> You </p>'
+                htmlplayers += '<p class="player"> You </p>'
             } else {
-                htmlplayers += '<p>' + player.username + '</p>';
+                htmlplayers += '<p class="player">' + player.username + '</p>';
             };
     });
     displayPlayers();
@@ -52,8 +60,8 @@ sse.onmessage = function (response) {
 
 //buttons
 if (Number(id)) {
-    dom('.buttons').innerHTML = '<button class="button-exit-game">Exit</button>';
-    dom('.button-exit-game').addEventListener('click', () => {
+    dom('.buttons').innerHTML = '<div class="div-exit"><p>Exit</p></div>';
+    dom('.div-exit').addEventListener('click', () => {
         if (confirm('Are you sure you want to exit this game?')) {
             sse.close();
             xhr.open('GET', `/exit${window.location.pathname}${window.location.search}`);
@@ -61,11 +69,26 @@ if (Number(id)) {
             window.location.replace('/');
         };
     });
+    dom('.logo').addEventListener('click', () => {
+        if (confirm('Are you sure you want to exit this game?')) {
+            sse.close();
+            xhr.open('GET', `/exit${window.location.pathname}${window.location.search}`);
+            xhr.send();
+            window.location.replace('/');
+        };
+    });
+
 } else if (Number(id) === 0) {
-    dom('.buttons').innerHTML = '<button class="button-cancel-game">Cancel</button> <button class="button-start-game">Start</button>';
+    dom('.buttons').innerHTML = '<div class="div-cancel"><p>Cancel</p></div> <div class="div-start"><p>Start</p></div>';
     
     //cancel game
-    dom('.button-cancel-game').addEventListener('click', () => {
+    dom('.div-cancel').addEventListener('click', () => {
+        if (confirm('Are you sure you want to cancel this game?')) {
+            xhr.open('GET', `/cancel${window.location.pathname}`);
+            xhr.send();    
+        };
+    });
+    dom('.logo').addEventListener('click', () => {
         if (confirm('Are you sure you want to cancel this game?')) {
             xhr.open('GET', `/cancel${window.location.pathname}`);
             xhr.send();    
@@ -73,9 +96,29 @@ if (Number(id)) {
     });
 
     //start game
-    dom('.button-start-game').addEventListener('click', () => {
+    dom('.div-start').addEventListener('click', () => {
         if (confirm('Are you sure you want to start this game? After starting nobody can join this game anymore.')) {
             window.location.replace(`/set_area/${code[1]}`);
         };
     });
 };
+
+
+//general look
+function hideDropdown () {
+    dom('.dropdown-menu').style.display = 'none';
+};
+hideDropdown();
+
+//show dropdown menu
+dom('.menu').addEventListener('click', () => {
+    dom('.dropdown-menu').style.display = 'grid';
+});
+
+//close dropdown menu
+dom('.svg-close').addEventListener('click', () => {
+    hideDropdown();
+});
+dom('.content').addEventListener('click', () => {
+    hideDropdown();
+});
