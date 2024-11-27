@@ -137,6 +137,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         };
         
         play.on(`countTime/${code}`, (countSec) => {
+            console.log(gamejson.players);
             if (!firstTimeUpdate) {
                 const timer = timers.find((timer) => {return timer.code === code});
                 const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
@@ -182,7 +183,6 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         });
         newCoordinates.on(`tryready/${code}`, () => {
             res.write("data: " + `${JSON.stringify('ready')}\n\n`);
-            console.log(req.query.id);
         });
         newCoordinates.on(`ready/${code}`, (id) => {
             if (id) {
@@ -561,7 +561,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
             let count = 0;
             setInterval(() => {
-                const coordinates = timers[0].runawayLocationsUpdate ? timers[0].runawayLocationsUpdate[0].coordinates : timers[0].runawayLocationsUpdate;
+                const coordinates = timers[0] && timers[0].runawayLocationsUpdate ? timers[0].runawayLocationsUpdate[0].coordinates : timers[0].runawayLocationsUpdate;
                 console.log(count + ': ' + coordinates);
                 count ++;
             }, 1000);
