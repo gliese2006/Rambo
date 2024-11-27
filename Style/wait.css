@@ -1,0 +1,16 @@
+body {
+    margin: 0px;
+    height: 100vh;
+    border-radius: 0px;
+    background-color: rgb(232, 232, 232);
+    font-family: "Kumbh Sans", sans-serif;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.div-message {
+    font-size: 30px;
+    text-align: center;
+}

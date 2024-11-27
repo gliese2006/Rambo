@@ -50,6 +50,7 @@ const lobbycss = fs.readFileSync('./Style/lobby.css');
 
 const waithtml = fs.readFileSync('./HTML/wait.html');
 const waitjs = fs.readFileSync('./Scripts/wait.js');
+const waitcss = fs.readFileSync('./Style/wait.css');
 
 const setAreahtml = fs.readFileSync('./HTML/set_area.html');
 const setAreajs = fs.readFileSync('./Scripts/set_area.js');
@@ -385,6 +386,11 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
     app.get('/wait.js', (req, res) => {
         res.end(waitjs);
     });
+
+    app.get('/wait.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(waitcss);
+    })
 
 //request on set_area
     app.get('/set_area/:code', (req, res) => {

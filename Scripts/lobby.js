@@ -31,6 +31,7 @@ function addPlayer (players) {
     players.forEach((player) => {
             if (player.id === id) {
                 htmlplayers += '<p class="player"> You </p>'
+                dom('.display-welcome').innerHTML = `Welcome ${player.username}!`;
             } else {
                 htmlplayers += '<p class="player">' + player.username + '</p>';
             };
@@ -48,10 +49,15 @@ sse.onmessage = function (response) {
     } else if (res == 'wait' && id > 0) {
         window.location.replace(`/wait/${code[1]}${window.location.search}`)
     } else if (!res) {
-        document.body.innerHTML = '<p> Host canceled game! </p>'
+        dom('body').style.height = `${screen.height}px`;
+        dom('body').style.marginTop = '0px';
+        dom('body').style.display = 'flex';
+        dom('body').style.justifyContent = 'center';
+        dom('body').style.alignItems = 'center';
         setTimeout(() => {
             window.location.replace('/');
         }, 2000);
+        document.body.innerHTML = '<div class="div-cancel-message"> Host canceled game! </div>';
     } else {
         addPlayer(res);
     }

@@ -1,11 +1,14 @@
 body {
     margin: 0px;
-    margin-top: 90px;
+    margin-top: 15vh;
     border-radius: 0px;
+    background-color: rgb(232, 232, 232);
+    font-family: "Kumbh Sans", sans-serif;
+    font-weight: 500;
 }
 
 .header {
-    height: 80px;
+    height: 15vh;
     background-color: rgb(183, 183, 183);
     position: fixed;
     top: 0px;
@@ -28,10 +31,11 @@ body {
 
 .logo p {
     font-size: 40px;
+    font-weight: 600;
 }
 
 .menu {
-    width: 80px;
+    width: 15vh;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -47,13 +51,14 @@ body {
     bottom: 0px;
     width: 250px;
     display: grid;
-    grid-template-rows: 80px 50px 50px 50px;
+    grid-template-rows: 15vh 50px 50px 50px;
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
 }
 
 .svg-close {
     height: 100%;
-    width: 80px;
+    width: 15vh;
     display: flex;
     justify-content: center;
     align-items: center;
