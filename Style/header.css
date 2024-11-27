@@ -8,6 +8,7 @@ body {
 }
 
 .header {
+    z-index: 1;
     height: 15vh;
     background-color: rgb(183, 183, 183);
     position: fixed;
@@ -44,6 +45,7 @@ body {
 }
 
 .dropdown-menu {
+    z-index: 1;
     background-color: rgba(137, 137, 137, 0.1);
     position: fixed;
     top: 0px;
@@ -64,17 +66,21 @@ body {
     align-items: center;
 }
 
-.div-close, .div-new, .div-join, .div-instructions {
+.div-close, .div-1, .div-2, .div-3 {
     border-bottom: 1px solid black;
 }
 
-.div-new, .div-join, .div-instructions {
+.div-1, .div-2, .div-3 {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.link-new:hover, .link-join:hover, .link-instructions:hover, .svg-close:hover, .menu:hover, .button-submit:hover {
+.content {
+    margin: 0px 3px;
+}
+
+.link-1:hover, .link-2:hover, .link-3:hover, .svg-close:hover, .menu:hover, .button-1:hover {
     background-color:lightgrey;
     cursor: pointer;
 }

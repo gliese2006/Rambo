@@ -31,7 +31,7 @@ class addTimer {
 //files
 const homehtml = fs.readFileSync('./HTML/home.html');
 const homecss = fs.readFileSync('./Style/home.css');
-const headerjs = fs.readFileSync('./Scripts/header.js');
+const headerjs = fs.readFileSync('./Scripts/home_header.js');
 const headercss = fs.readFileSync('./Style/header.css');
 
 const instructionshtml = fs.readFileSync('./HTML/instructions.html')
@@ -54,6 +54,7 @@ const waitcss = fs.readFileSync('./Style/wait.css');
 
 const setAreahtml = fs.readFileSync('./HTML/set_area.html');
 const setAreajs = fs.readFileSync('./Scripts/set_area.js');
+const setAreacss = fs.readFileSync('./Style/set_area.css');
 
 const setTaskshtml = fs.readFileSync('./HTML/set_tasks.html');
 const setTasksjs = fs.readFileSync('./Scripts/set_tasks.js');
@@ -238,7 +239,7 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
         res.end(homecss);
     });
 
-    app.get('/header.js', (req, res) => {
+    app.get('/home_header.js', (req, res) => {
         res.end(headerjs);
     });
 
@@ -402,6 +403,11 @@ const geolocationmodule = require('./Server_modules/geolocationmodule');
 
     app.get('/set_area.js', (req, res) => {
         res.end(setAreajs);
+    });
+
+    app.get('/set_area.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(setAreacss);
     });
 
     app.post('/send_playing_area/:code', (req, res) => {

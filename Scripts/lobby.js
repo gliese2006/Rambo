@@ -66,8 +66,8 @@ sse.onmessage = function (response) {
 
 //buttons
 if (Number(id)) {
-    dom('.buttons').innerHTML = '<div class="div-exit"><p>Exit</p></div>';
-    dom('.div-exit').addEventListener('click', () => {
+    dom('.buttons').innerHTML = '<div class="link-1 div-1"><p>Exit</p></div>';
+    dom('.div-1').addEventListener('click', () => {
         if (confirm('Are you sure you want to exit this game?')) {
             sse.close();
             xhr.open('GET', `/exit${window.location.pathname}${window.location.search}`);
@@ -85,10 +85,10 @@ if (Number(id)) {
     });
 
 } else if (Number(id) === 0) {
-    dom('.buttons').innerHTML = '<div class="div-cancel"><p>Cancel</p></div> <div class="div-start"><p>Start</p></div>';
+    dom('.buttons').innerHTML = '<div class="link-1 div-1"><p>Cancel</p></div> <div class="link-2 div-2"><p>Start</p></div>';
     
     //cancel game
-    dom('.div-cancel').addEventListener('click', () => {
+    dom('.div-1').addEventListener('click', () => {
         if (confirm('Are you sure you want to cancel this game?')) {
             xhr.open('GET', `/cancel${window.location.pathname}`);
             xhr.send();    
@@ -102,7 +102,7 @@ if (Number(id)) {
     });
 
     //start game
-    dom('.div-start').addEventListener('click', () => {
+    dom('.div-2').addEventListener('click', () => {
         if (confirm('Are you sure you want to start this game? After starting nobody can join this game anymore.')) {
             window.location.replace(`/set_area/${code[1]}`);
         };

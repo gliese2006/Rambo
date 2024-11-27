@@ -106,17 +106,43 @@ function scb (position) {
 
 function ecb (error) {
     console.log(error);
+    dom('.display-error').innerHTML = error.message + '! Without geolocation it is not possible to play the game. Please permit geolocation or cancel the game.';
 };
 
 //onclick cancel
-dom('.button-cancel').addEventListener('click', () => {
+dom('.link-1').addEventListener('click', () => {
     if (confirm('Are you sure you want to cancel this game?')) {
         xhr.open ('GET', `/cancel/${code}?place=wait`, false);
         xhr.send();
-        document.body.innerHTML = '<p> Host canceled game! </p>';
+        dom('body').style.height = `${screen.height}px`;
+        dom('body').style.marginTop = '0px';
+        dom('body').style.display = 'flex';
+        dom('body').style.justifyContent = 'center';
+        dom('body').style.alignItems = 'center';
         setTimeout(() => {
             window.location.replace('/');
             //console.log(window.location);
         }, 2000);
+        document.body.innerHTML = '<div class="div-cancel-message"> Host canceled game! </div>';
     };
+});
+
+
+//general look
+function hideDropdown () {
+    dom('.dropdown-menu').style.display = 'none';
+};
+hideDropdown();
+
+//show dropdown menu
+dom('.menu').addEventListener('click', () => {
+    dom('.dropdown-menu').style.display = 'grid';
+});
+
+//close dropdown menu
+dom('.svg-close').addEventListener('click', () => {
+    hideDropdown();
+});
+dom('.content').addEventListener('click', () => {
+    hideDropdown();
 });

@@ -31,6 +31,6 @@ dom('.content').addEventListener('click', () => {
 
 //links
 link('.logo', '/');
-link('.link-new', '/new');
-link('.link-join', '/join');
-link('.link-instructions', '/instructions');
+link('.link-1', '/new');
+link('.link-2', '/join');
+link('.link-3', '/instructions');

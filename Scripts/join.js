@@ -4,7 +4,7 @@ function dom (c) {
 };
 
 //send user input to server
-dom('.button-submit').addEventListener('click', () => {
+dom('.button-1').addEventListener('click', () => {
     dom('.display-response').innerHTML = '';
 
     const code = dom('.input-code').value;
