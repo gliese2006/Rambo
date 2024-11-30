@@ -41,18 +41,17 @@ function checkRunawayNumber (code, timers, play) {
         clearTimer(code, timers);
         play.emit(`gameOver/${code}`, 'All runaways caught. Seekers won!');
     };
-    return timers;
 };
 
 function clearTimer (code, timers) {
-    const i = findmodule.timersFindIndex(code, timers);
-    clearInterval(timers[i].countSeconds);
-    clearInterval(timers[i].runawayUpdate);
-    clearTimeout(timers[i].gameOver);
-    clearTimeout(timers[i].waitToDelete);
-    clearTimeout(timers[i].seekersReady);
+    const timer = timers.get(code);
+    clearInterval(timer.countSeconds);
+    clearInterval(timer.runawayUpdate);
+    clearTimeout(timer.gameOver);
+    clearTimeout(timer.waitToDelete);
+    clearTimeout(timer.seekersReady);
     setTimeout(() => {
         findmodule.deleteFile(code);
     }, 30000);
-    timers.splice(i, 1);
+    timers.delete(code);
 }

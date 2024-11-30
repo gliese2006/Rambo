@@ -1,0 +1,62 @@
+body {
+    margin: 0px;
+    font-family: "Kumbh Sans", sans-serif;
+    font-weight: 500;
+}
+
+.menu {
+    width: 10vh;
+    height: 10vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    background-color: rgb(183, 183, 183);
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    box-shadow: 0px 0.5px 5px black;
+    border-radius: 5px;
+}
+
+.dropdown-menu {
+    z-index: 11;
+    background-color: rgb(183, 183, 183);
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    border-radius: 5px;
+    box-shadow: 0px 0.5px 5px black;
+    width: 250px;
+    display: grid;
+    grid-template-rows: 15vh 50px 50px 50px;
+}
+
+.svg-close {
+    height: 100%;
+    width: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.div-close, .div-1, .div-2, .div-3 {
+    border-bottom: 1px solid black;
+}
+
+.div-1, .div-2, .div-3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    margin: 0px 3px;
+}
+
+.link-1:hover, .link-2:hover, .link-3:hover, .svg-close:hover, .menu:hover, .button-1:hover, .button-2:hover {
+    background-color:lightgrey;
+    cursor: pointer;
+}

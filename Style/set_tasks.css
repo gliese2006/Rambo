@@ -1,0 +1,84 @@
+#map {
+    height: 400px;
+    z-index: 0;
+    width: 100%;
+    box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134);
+}
+
+.logo-only {
+    margin: 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.logo-only p {
+    font-size: 40px;
+    font-weight: 600;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+select {
+    border-radius: 10px;
+}
+
+.button-1 {
+    border: 1px solid black;
+    border-radius: 2px;
+    background-color: rgb(183, 183, 183);
+    font-size: 20px;
+    width: 300px;
+    padding: 5px 0px 5px 0px;
+    color: black;
+}
+
+.content p {
+    margin: 10px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.div-cancel-message {
+    font-size: 30px;
+    text-align: center;
+}
+
+.display-players {
+    background-color: white;
+    width: 280px;
+    max-height: 800px;
+    box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134) inset;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.display-player {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 200px;
+    padding: 10px 10px;
+    border-radius: 5px;
+    background-color: cornflowerblue;
+    margin: 10px 0px 0px;
+}
+
+.display-player p, .display-player label, .display-player option, .display-player select{
+    font-size: 15px;
+    margin: 0px;
+}
+
+.display-player label {
+    margin-right: 20px;
+}

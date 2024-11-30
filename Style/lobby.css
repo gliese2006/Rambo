@@ -41,6 +41,7 @@
     align-items: center;
     padding-bottom: 10px;
     border-radius: 5px;
+    margin-bottom: 10px;
 }
 
 .player {
@@ -50,6 +51,16 @@
     background-color: cornflowerblue;
     text-align: center;
     margin: 10px 0px 0px;
+}
+
+.button-1 {
+    border: 1px solid black;
+    border-radius: 2px;
+    background-color: rgb(183, 183, 183);
+    font-size: 20px;
+    width: 300px;
+    padding: 5px 0px 5px 0px;
+    color: black;
 }
 
 .display-welcome {

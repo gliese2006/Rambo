@@ -4,13 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/header.css">
+    <link rel="stylesheet" type="text/css" href="/set_time.css">
 </head>
 <body>
-    <p>Please set playing time.</p>
-    <input class="input-hours" placeholder="hours"><label>h</label>
-    <input class="input-minutes" placeholder="minutes"><label>min</label>
-    <button class="button-submit">Submit</button>
-    <p class="display-message"></p>
+    <div class="header">
+        <div class="logo-only">
+            <div class="div-code">
+                <p>Set Time</p>
+            </div>
+        </div>
+        <div class="menu">
+            <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#000000"><path d="M150-240q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h660q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H150Zm0-210q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h660q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H150Zm0-210q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h660q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H150Z"/></svg>
+        </div>
+    </div>
+
+    <div class="dropdown-menu">
+        <div class="div-close">
+            <div class="svg-close">
+                <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#000000"><path d="M480-438 270-228q-9 9-21 9t-21-9q-9-9-9-21t9-21l210-210-210-210q-9-9-9-21t9-21q9-9 21-9t21 9l210 210 210-210q9-9 21-9t21 9q9 9 9 21t-9 21L522-480l210 210q9 9 9 21t-9 21q-9 9-21 9t-21-9L480-438Z"/></svg>
+            </div>
+        </div>
+        <div class="link-1 div-1">
+            <p>Cancel</p>
+        </div>
+    </div>
+
+    <div class="content">
+        <p>Please set playing time.</p>
+        <div class="input-time">
+            <input class="input-hours" placeholder="hours" type="number">
+            <label>:</label>
+            <input class="input-minutes" placeholder="minutes" type="number">
+        </div>
+        <button class="button-1">Submit</button>
+        <p class="display-message"></p>
+    </div>
 
 <script src="../set_time.js"></script>
 </body>

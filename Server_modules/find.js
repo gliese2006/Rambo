@@ -7,7 +7,6 @@ module.exports.findCurrentPlayer = findCurrentPlayer;
 module.exports.writeFile = writeFile;
 module.exports.deleteFile = deleteFile;
 module.exports.readFile = readFile;
-module.exports.timersFindIndex = timersFindIndex;
 
 function findGame (code, newgamesjson) {
     let index;
@@ -62,9 +61,3 @@ function writeFile (code, gamejson) {
 function deleteFile (code) {
     fs.unlinkSync(`./current_games/${code}`)
 };
-
-function timersFindIndex (code, timers) {
-    return timers.findIndex((timer) => {
-        return timer.code === code
-    });
-}

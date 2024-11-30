@@ -5,8 +5,8 @@ function dom (c) {
 
 
 //send ready
-dom('.button-next').addEventListener('click', () => {
-    window.location.replace(`/check_geolocation/${window.location.pathname.split('/runaway_instructions/')[1]}${window.location.search}&task=runaway`);
+dom('.button-1').addEventListener('click', () => {
+    window.location.href = `/check_geolocation/${window.location.pathname.split('/runaway_instructions/')[1]}${window.location.search}&task=runaway`;
     }
 );
 

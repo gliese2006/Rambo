@@ -24,7 +24,7 @@ function createPlayerhtml () {
         if (playershtml) {
             playershtml += createHTML(player.username);
         } else {
-            playershtml = createHTML (player.username);
+            playershtml = `<div class="display-player"><label>You</label><p>Seeker</p></div>`;
         }   
     });
 
@@ -32,17 +32,19 @@ function createPlayerhtml () {
 };
 
 function createHTML (playerUsername) {
-    return `<label>${playerUsername}</label> <select id="${playerUsername}"><option></option><option value="seeker">Seeker</option><option value="runaway">Runaway</option></select><br>`;
+    return `<div class="display-player"><label>${playerUsername}</label> <select id="${playerUsername}"><option></option><option value="seeker">Seeker</option><option value="runaway">Runaway</option></select></div>`;
 };
 
 //send input
 function addPlayerTask () {
     let allChecked = true;
     players.forEach((player) => {
-        if (dom(`#${player.username}`).value) {
+        if (dom(`#${player.username}`) && dom(`#${player.username}`).value) {
             let task = dom(`#${player.username}`).value;
             //player.task = true;
             player.task = task;
+        } else if (player.id === 0) {
+            player.task = 'seeker'
         } else {
             dom('.display-message').innerHTML += `<p> You haven't selected a task for ${player.username} yet. </p>`;
             allChecked = false;
@@ -54,7 +56,7 @@ function addPlayerTask () {
 
 //confirm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //send player task
-dom('.button-submit').addEventListener('click', () => {
+dom('.button-1').addEventListener('click', () => {
     dom('.display-message').innerHTML = '';
     if (addPlayerTask()) {
         if (confirm('Please confirm by clicking ok all the player tasks.')) {
@@ -68,4 +70,42 @@ dom('.button-submit').addEventListener('click', () => {
             window.location.replace(`/set_time/${code}`);
         };
     };
+});
+
+//onclick cancel
+dom('.link-1').addEventListener('click', () => {
+    if (confirm('Are you sure you want to cancel this game?')) {
+        xhr.open ('GET', `/cancel/${code}?place=wait`, false);
+        xhr.send();
+        dom('body').style.height = `${screen.height}px`;
+        dom('body').style.marginTop = '0px';
+        dom('body').style.display = 'flex';
+        dom('body').style.justifyContent = 'center';
+        dom('body').style.alignItems = 'center';
+        setTimeout(() => {
+            window.location.replace('/');
+            //console.log(window.location);
+        }, 2000);
+        document.body.innerHTML = '<div class="div-cancel-message"> Host canceled game! </div>';
+    };
+});
+
+
+//general look
+function hideDropdown () {
+    dom('.dropdown-menu').style.display = 'none';
+};
+hideDropdown();
+
+//show dropdown menu
+dom('.menu').addEventListener('click', () => {
+    dom('.dropdown-menu').style.display = 'grid';
+});
+
+//close dropdown menu
+dom('.svg-close').addEventListener('click', () => {
+    hideDropdown();
+});
+dom('.content').addEventListener('click', () => {
+    hideDropdown();
 });

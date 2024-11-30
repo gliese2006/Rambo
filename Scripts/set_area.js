@@ -6,6 +6,7 @@ code = window.location.pathname.split('/set_area/')[1];
 //console.log(code);
 //const code = window.location.pathname.split('/set_time/')[1];
 let coordinates, map, currentPosition, centerMarker, perimeter;
+hideDropdown();
 
 //checkdirections
 function ns (lat) {
@@ -31,6 +32,23 @@ function ew (lng) {
 //geolocation
 alert('To play this game, this website needs to locate you. Please permit geolocation.');
 
+function submit () {
+    if (dom('.input-radius').value) {
+        const radius = dom('.input-radius').value;
+        const data = JSON.stringify({coordinates, radius});
+        
+        if (confirm(`Please confirm by clicking ok your center ${coordinates[0].toFixed(2) + ns(coordinates[0])}, ${coordinates[1].toFixed(2) + ew(coordinates[1])} and your radius ${radius}m.`)) {
+            dom('.input-radius').value = '';
+            xhr.open('POST', `/send_playing_area/${window.location.pathname.split('/set_area/')[1]}`, false);
+            xhr.setRequestHeader('Content-type', 'application/json');
+            xhr.send(data);
+            window.location.replace(JSON.parse(xhr.response));
+        };
+    } else {
+        dom('.display-error').innerHTML = 'Please set a radius.';
+    };
+};
+
 navigator.geolocation.getCurrentPosition(scb, ecb);
 
 function scb (position) {
@@ -38,7 +56,6 @@ function scb (position) {
 
 
 //map and location
-
     map = L.map('map').setView(currentPosition, 12);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -87,20 +104,7 @@ function scb (position) {
         
 //onclick submit
     dom('.button-submit').addEventListener('click', () => {
-        if (dom('.input-radius').value) {
-            const radius = dom('.input-radius').value;
-            const data = JSON.stringify({coordinates, radius});
-            
-            if (confirm(`Please confirm by clicking ok your center ${coordinates[0].toFixed(2) + ns(coordinates[0])}, ${coordinates[1].toFixed(2) + ew(coordinates[1])} and your radius ${radius}m.`)) {
-                dom('.input-radius').value = '';
-                xhr.open('POST', `/send_playing_area/${window.location.pathname.split('/set_area/')[1]}`, false);
-                xhr.setRequestHeader('Content-type', 'application/json');
-                xhr.send(data);
-                window.location.replace(JSON.parse(xhr.response));
-            };
-        } else {
-            dom('.display-error').innerHTML = 'Please set a radius.';
-        };
+        submit();
     });
 };
 
@@ -132,7 +136,6 @@ dom('.link-1').addEventListener('click', () => {
 function hideDropdown () {
     dom('.dropdown-menu').style.display = 'none';
 };
-hideDropdown();
 
 //show dropdown menu
 dom('.menu').addEventListener('click', () => {
@@ -145,4 +148,14 @@ dom('.svg-close').addEventListener('click', () => {
 });
 dom('.content').addEventListener('click', () => {
     hideDropdown();
+});
+
+dom('body').addEventListener('keydown', (event) => {
+    if (event.code === 'Space') {
+        event.preventDefault();
+    } else if (event.key === 'e') {
+        event.preventDefault();
+    } else if (event.key === 'Enter') {
+        submit();
+    };
 });

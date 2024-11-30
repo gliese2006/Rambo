@@ -86,6 +86,7 @@ if (Number(id)) {
 
 } else if (Number(id) === 0) {
     dom('.buttons').innerHTML = '<div class="link-1 div-1"><p>Cancel</p></div> <div class="link-2 div-2"><p>Start</p></div>';
+    dom('.display-button').innerHTML = '<button class="button-1 link-2">Play</button>';
     
     //cancel game
     dom('.div-1').addEventListener('click', () => {
@@ -102,10 +103,12 @@ if (Number(id)) {
     });
 
     //start game
-    dom('.div-2').addEventListener('click', () => {
-        if (confirm('Are you sure you want to start this game? After starting nobody can join this game anymore.')) {
-            window.location.replace(`/set_area/${code[1]}`);
-        };
+    document.querySelectorAll('.link-2').forEach((element) => {
+        element.addEventListener('click', () => {
+            if (confirm('Are you sure you want to start this game? After starting nobody can join this game anymore.')) {
+                window.location.replace(`/set_area/${code[1]}`);
+            };
+        });
     });
 };
 
