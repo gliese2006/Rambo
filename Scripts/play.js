@@ -142,7 +142,7 @@ sse.onmessage = function (res) {
         };
         if (response.players) {
             //console.log([coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout]);
-            
+            console.log(response.players);
             //gamejson.players = response.players; outcommented so that host can also choose runaways as new hosts
             insideArea = checkDistance(coordinates, response.players, map, gamejson, task, id, xhr, insideArea, outsideTimeout);
             const markerslayer = displayPlayers(response.players, runawayMarkersLayer, seekerMarkersLayer);

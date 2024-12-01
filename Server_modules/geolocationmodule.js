@@ -45,9 +45,9 @@ function checkRunawayNumber (code, timers, play) {
 
 function clearTimer (code, timers) {
     const timer = timers.get(code);
-    //console.log(timer.countSeconds);
+    console.log(timer.countSeconds);
     clearInterval(timer.countSeconds);
-    //console.log(timer.countSeconds)
+    console.log(timer.countSeconds)
     clearInterval(timer.runawayUpdate);
     clearTimeout(timer.gameOver);
     clearTimeout(timer.waitToDelete);
@@ -56,4 +56,5 @@ function clearTimer (code, timers) {
         findmodule.deleteFile(code);
     }, 30000);
     timers.delete(code);
+    console.log(timers);
 }

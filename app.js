@@ -150,7 +150,9 @@ function sendData(res, data) {
         };
         
         play.on(`countTime/${code}`, (countSec) => {
-            console.log(gamejson.players);
+            if (req.query.id == 0) {
+                console.log(gamejson.players);
+            }
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
                 const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
@@ -575,10 +577,6 @@ function sendData(res, data) {
             //playing time
             let countUpdates = 0;
             let countSec = 0;
-            /*const updateInterval = setInterval(() => {
-                countUpdates ++;
-                play.emit(`updateTime/${code}`, countUpdates);
-            }, 60000);*/
             const countSeconds = setInterval(() => {
                 countSec ++;
                 play.emit(`countTime/${code}`, countSec);
@@ -591,22 +589,22 @@ function sendData(res, data) {
             let waitToDelete;
             const gameOver = setTimeout(() => {
                 play.emit(`gameOver/${code}`, 'Time is up. Runaways won!');
-                waitToDelete = setTimeout(() => {
+                /*waitToDelete = setTimeout(() => {
                     findmodule.deleteFile(code);
                     timers.delete(code);
-                }, 30000);
-                //clearInterval(updateInterval);
+                    console.log(timers);
+                }, 30000);*/
                 //console.log(countSeconds)
-                clearInterval(runawayUpdate);
-                clearInterval(countSeconds);
+                //clearInterval(runawayUpdate);
+                //clearInterval(countSeconds);
                 //console.log(countSeconds)
                 console.log('clearing')
                 geolocationmodule.clearTimer(code, timers);
             }, gamejson.time);
-
             let count = 0;
             setInterval(() => {
                 const timer = timers.get(code);
+                console.log(timer.gameOver)
                 let coordinates;
                 if (timer && timer.runawayLocationsUpdate) {
                     coordinates = timer.runawayLocationsUpdate[0].coordinates;
