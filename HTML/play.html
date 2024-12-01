@@ -6,41 +6,50 @@
     <title>Document</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@100..900&display=swap" rel="stylesheet">
 
-    <style>
-        #map {
-            height: 400px;
-        };
-        .display-dialog-wait-seeker {
-            height: 400px;
-            width: 100px;
-            background-color: black;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/header_play.css">
+    <link rel="stylesheet" type="text/css" href="/play.css">
 </head>
 <body>
-    <div id="map"></div>
-    <p class="display-message"></p>
-    <p class="display-time"></p>
-    <button class="button-find-position">Find your position</button>
-    <div class="display-exit-cancel-button"></div>
-
-    <!--Dialog-->
-    <div class="display-dialog-wait-seeker">
-        <dialog id="dialog-wait-seeker">
-            <p class="display-waiting-time"></p>
-        </dialog>
+    <div class="menu" id="menu">
+        <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#000000"><path d="M150-240q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h660q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H150Zm0-210q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h660q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H150Zm0-210q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h660q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H150Z"/></svg>
     </div>
 
-    <dialog id="dialog-select-host">
-        <p>Are you sure, you want to exit this game? If yes, please select a new host.</p>
-        <div class="display-select-host"></div>
-        <p class="display-message"></p>
-        <button class="button-confirm-host">Confirm new Host</button>
-        <button class="button-cancel-host">Cancel</button>
-    </dialog>
+    <div class="dropdown-menu" id="dropdown-menu">
+        <div class="div-close">
+            <div class="svg-close">
+                <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#000000"><path d="M480-438 270-228q-9 9-21 9t-21-9q-9-9-9-21t9-21l210-210-210-210q-9-9-9-21t9-21q9-9 21-9t21 9l210 210 210-210q9-9 21-9t21 9q9 9 9 21t-9 21L522-480l210 210q9 9 9 21t-9 21q-9 9-21 9t-21-9L480-438Z"/></svg>
+            </div>
+        </div>
+        <div class="buttons"></div>
+    </div>
+
+    <div class="content">
+        <div class="display-message" id="display-message"></div>
+        <div class="display-time"></div>
+        <div id="map"></div>
+        <div class="div-find-position"></div>
+        <div class="div-waiting-time" id="div-waiting-time">
+            <p class="display-waiting-message"></p>
+            <p class="display-waiting-time"></p>
+        </div>
+
+        <div class="div-select-host">
+            <div class="div-close-dialog button-cancel-host">
+                <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#000000"><path d="M480-438 270-228q-9 9-21 9t-21-9q-9-9-9-21t9-21l210-210-210-210q-9-9-9-21t9-21q9-9 21-9t21 9l210 210 210-210q9-9 21-9t21 9q9 9 9 21t-9 21L522-480l210 210q9 9 9 21t-9 21q-9 9-21 9t-21-9L480-438Z"/></svg>
+            </div>
+            <p class="display-instructions-dialog">Are you sure, you want to exit this game? If yes, please select a new host.</p>
+            <div class="display-select-host"></div>
+            <p class="display-message-dialog"></p>
+            <button class="button-1 button-confirm-host">Confirm</button>
+        </div>
+    </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="

@@ -31,16 +31,15 @@ setInterval(() => {
         const data = JSON.stringify({coordinates});
         xhr.send(data);
 
-        checkCentered = centerUserPosition(map, coordinates, dom('.button-find-position'), checkCentered);
         if (checkCentered) {
-            map.setView(coordinates, 16, {animate: true});
+            map.setView(coordinates, 19, {animate: true});
         };
     };
 
     function ecb (error) {
         //Alert only once (every x seconds)
-        alert(`${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.`);
-        dom('.display-message').innerHTML = `<p>${error.message}! Without geolocation it is not possible to play the game. Please reload or exit the game.</p>`;
+        alert(`${error.message}! Without geolocation it is not possible to play the game. Please try again or exit the game.`);
+        dom('.display-message').innerHTML = `<p>${error.message}! Without geolocation it is not possible to play the game. Please try again or exit the game.</p>`;
     };
 }, 3000);
 
@@ -68,7 +67,14 @@ sse.onmessage = function (res) {
         };
     } else if (response.gameover) {
         //sse.close();
-        document.body.innerHTML = `<p> ${response.gameover} If you want to play another game, just "create" or "join" a "new game".</p>`
+        dom('body').style.height = `${screen.height}px`;
+        dom('body').style.marginTop = '0px';
+        dom('body').style.display = 'flex';
+        dom('body').style.justifyContent = 'center';
+        dom('body').style.alignItems = 'center';
+        document.body.innerHTML = `<div class="div-cancel-message"> ${response.gameover} If you want to play another game, just "create" or "join" a "new game".</div>`
+        dom('.div-cancel-message').style.fontSize = '25px';
+        dom('.div-cancel-message').style.textAlign = 'center';
         setTimeout(() => {
             window.location.replace('/');
         }, 5000);
@@ -76,41 +82,48 @@ sse.onmessage = function (res) {
         //console.log('seeker message')
         if (response.checkSeekersReady === 'Y') {
             checkSeekersReady = true;
-            if (task === 'seeker') {
-                document.getElementById('dialog-wait-seeker').close();
-                //clearInterval(timeInterval); timeInterval ist sowieso nicht überall das gleiche
-            } else if (timeUpdate - Math.round(gamejson.time / 12) < 60000) {
+            document.getElementById('div-waiting-time').remove();
+            if (task === 'runaway' && timeUpdate - Math.round(gamejson.time / 12) < 60000) {
                 alert('Seekers are now hunting you!');
             };
             //console.log(timeUpdate - Math.round(gamejson.time / 12))
         } else {
-            //console.log(task);
             if (task === 'seeker') {
-                //console.log(timeUpdate);
-                waitSeeker(Math.round(gamejson.time / 12) - timeUpdate, dom('.display-waiting-time'));
+                const s = dom('.div-waiting-time').style
+                s.position = 'absolute';
+                s.top = '5px';
+                s.bottom = '5px';
+                s.right = '5px';
+                s.left = '5px';
+                s.fontSize = '30px';
+                dom('.display-waiting-message').style.fontSize = '25px';
+                dom('.display-waiting-message').innerHTML = 'Wait for'
             } else {
-                alert(`You have ${transformTime((Math.round(gamejson.time / 12) - timeUpdate) / 1000)} to run away before the seekers start hunting you.`)
+                const s = dom('.div-waiting-time').style
+                s.position = 'absolute';
+                s.top = '10px';
+                s.right = '15vh';
+                s.left = '10vh';
+                s.fontSize = '15px';
+                dom('.display-waiting-message').style.fontSize = '13px';
+                dom('.display-waiting-message').innerHTML = 'Time, until seekers start hunting you:';
             };
+            //console.log(task);
+            displayWaitTime((Math.round(gamejson.time / 12) - timeUpdate) / 1000, dom('.display-waiting-time'));
         }
     } else {
         if (response.update) {
             if (!checkSeekersReady) {
                 timeUpdate = response.update;
                 const updatedTime = (gamejson.time - timeUpdate)/1000;
-                //console.log(timeInterval);
-                clearInterval(timeInterval);
-                //console.log(timeInterval);
-                timeInterval = displayTime(updatedTime, dom('.display-time'));
+                displayTime(updatedTime, dom('.display-time'));
 
-                if (task === 'seeker') {
-                    waitSeeker(Math.round(gamejson.time / 12) - timeUpdate, dom('.display-waiting-time'));
-                };
+                displayWaitTime((Math.round(gamejson.time / 12) - timeUpdate) / 1000, dom('.display-waiting-time'));
             } else {
-                //console.log('timeupdate');
+                console.log('timeupdate');
                 timeUpdate = response.update;
                 const updatedTime = (gamejson.time - timeUpdate)/1000;
-                clearInterval(timeInterval);
-                timeInterval = displayTime(updatedTime, dom('.display-time'));
+                displayTime(updatedTime, dom('.display-time'));
                 //console.log(response.update);
                 if (response.update%90000 === 0) {
                     if (task === 'seeker') {
@@ -141,8 +154,8 @@ sse.onmessage = function (res) {
 
 //exit button
 if (id) {
-    dom('.display-exit-cancel-button').innerHTML = '<button class="button-exit"> Exit </button>';
-    dom('.button-exit').addEventListener('click', () => {
+    dom('.buttons').innerHTML = '<div class="link-1 div-1"><p>Exit</p></div>';
+    dom('.div-1').addEventListener('click', () => {
         if (confirm('Are you sure you want to exit this game?')) {
             sse.close();
             xhr.open('GET', `/exit/${code}?id=${id}&username=${username}&place=play`, true);
@@ -156,8 +169,8 @@ if (id) {
 
 //cancel button
 if (id === 0) {
-    dom('.display-exit-cancel-button').innerHTML = '<button class="button-cancel"> Cancel </button> <button class="button-change-host"> Exit </button>';
-    dom('.button-cancel').addEventListener('click', () => {
+    dom('.buttons').innerHTML = '<div class="link-1 div-1"><p>Cancel</p></div> <div class="link-2 div-2"><p>Exit</p></div>';
+    dom('.div-1').addEventListener('click', () => {
         if (confirm('Are you sure you want to cancel this game?')) {
             xhr.open('GET', `/cancel/${code}?place=play`, false);
             xhr.send();
@@ -165,9 +178,10 @@ if (id === 0) {
             window.location.reload();
         };
     });
-    dom('.button-change-host').addEventListener('click', () => {
+    dom('.div-2').addEventListener('click', () => {
         dom('.display-select-host').innerHTML = selectNewHost(gamejson);
-        dom('#dialog-select-host').showModal();
+        console.log('clicked');
+        dom('.div-select-host').style.display = 'flex';
         dom('.button-confirm-host').addEventListener('click', () => {
             if (dom('#new-host').value) {
                 if (confirm(`Please confirm your exit and ${dom('#new-host').value} as a new host.`)) {
@@ -182,12 +196,13 @@ if (id === 0) {
                     window.location.replace('/');
                 };
             } else {
-                dom('.display-message').innerHTML = 'Please select a new host.'
+                dom('.display-message-dialog').innerHTML = 'Please select a new host.'
             }
         });
         dom('.button-cancel-host').addEventListener('click', () => {
-            dom('#dialog-select-host').close();
+            dom('.div-select-host').style.display = 'none';
         });
+        dom('.display-message-dialog').innerHTML = '';
     });
 
     //set server timeout
@@ -203,7 +218,13 @@ function getGameInfo (xhr) {
     xhr.open('GET', `/display_map/${code}`, false);
     xhr.send();
     if (xhr.status === 500) {
-        document.body.innerHTML = 'Game does no longer exist.'
+        dom('body').style.height = `${screen.height}px`;
+        dom('body').style.display = 'flex';
+        dom('body').style.justifyContent = 'center';
+        dom('body').style.alignItems = 'center';
+        document.body.innerHTML = '<div class="div-cancel-message"> Game does no longer exist. </div>'
+        dom('.div-cancel-message').style.fontSize = '25px';
+        dom('.div-cancel-message').style.textAlign = 'center';
         setTimeout(() => {
             window.location.replace('/');
         }, 2000);
@@ -218,34 +239,46 @@ function getUsername (gamejson, id) {
     return player.username;
 };
 
-function waitSeeker (time, dom) {
-    if (task === 'seeker') {
-        document.getElementById('dialog-wait-seeker').showModal();
-        //console.log(time);
-        waitInterval = displayTime(time / 1000, dom);
-    };
+function displayTime (time, dom) {
+    clearInterval(timeInterval);
+    dom.innerHTML = transformTime(time);
+    timeInterval = setInterval(() => {
+        time --;
+        dom.innerHTML = transformTime(time);
+    }, 1000);
 };
 
-function displayTime (time, dom) {
+function displayWaitTime (time, dom) {
+    clearInterval(waitInterval);
     dom.innerHTML = transformTime(time);
-    return timeInterval = setInterval(() => {
+    waitInterval = setInterval(() => {
         time --;
         dom.innerHTML = transformTime(time);
     }, 1000);
 };
 
 function transformTime (time) {
-    const h = Math.round(time/3600 - 0.5);
-    const min = Math.round((time%3600)/60 - 0.5);
-    const sec = Math.round((time%3600)%60 - 0.5);
-    return `${h}h ${min}min ${sec}sec`;
+    let h = `${Math.round(time/3600 - 0.5)}`;
+    let min = `${Math.round((time%3600)/60 - 0.5)}`;
+    let sec = `${Math.round((time%3600)%60 - 0.5)}`;
+    h = addZeroTime(h);
+    min = addZeroTime(min);
+    sec = addZeroTime(sec);
+    return `${h} : ${min} : ${sec}`;
+};
+
+function addZeroTime (time) {
+    if (time.length === 1) {
+        time = '0' + time;
+    };
+    return time;
 };
 
 //import { selectNewHost, confirmExit, confirmCancel } from './Scripts_modules/play_host.js';
 function selectNewHost (gamejson) {
     let playershtml = '<label>Select the new host:</label> <select id="new-host"> <option> </option>';
     gamejson.players.forEach((player) => {
-        if (player.id !== id) {
+        if (player.id !== id && player.task === 'seeker') {
             playershtml += `<option value="${player.username}">${player.username}</option>`;
         };
     });
@@ -354,17 +387,50 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
     return insideArea;
 };
 
-function centerUserPosition (map, coordinates, dom, checkCentered) {
-    document.body.addEventListener('pointerdown', () => {
-        if (map.getCenter() !== coordinates || map.getZoom() !== 17) {
-            checkCentered = false;
-        }
-    });
-    dom.addEventListener('click', () => {
-        map.setView(coordinates, 16, {animate: true});
+//centerUserPosition button
+//centerUserPosition button
+const findPositionButton = `
+        <button class="button-find-position button-2">
+            <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#000000"><path d="M440-82v-40q-125-14-214.5-103.5T122-440H82q-17 0-28.5-11.5T42-480q0-17 11.5-28.5T82-520h40q14-125 103.5-214.5T440-838v-40q0-17 11.5-28.5T480-918q17 0 28.5 11.5T520-878v40q125 14 214.5 103.5T838-520h40q17 0 28.5 11.5T918-480q0 17-11.5 28.5T878-440h-40q-14 125-103.5 214.5T520-122v40q0 17-11.5 28.5T480-42q-17 0-28.5-11.5T440-82Zm40-118q116 0 198-82t82-198q0-116-82-198t-198-82q-116 0-198 82t-82 198q0 116 82 198t198 82Zm0-120q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T560-480q0-33-23.5-56.5T480-560q-33 0-56.5 23.5T400-480q0 33 23.5 56.5T480-400Zm0-80Z"/></svg>
+        </button>`;
+
+dom('.div-find-position').innerHTML = findPositionButton;
+
+dom('#map').addEventListener('pointerdown', () => {
+    if (checkCentered && (map.getCenter() !== coordinates || map.getZoom() !== 19)) {
+        checkCentered = false;
+        dom('.div-find-position').innerHTML = findPositionButton;
+    };
+});
+
+dom('.div-find-position').addEventListener('click', () => {
+    if (!checkCentered) {
+        map.setView(coordinates, 19, {animate: true});
         checkCentered = true;
+        dom('.div-find-position').innerHTML = '';
+    };
+});
+
+//general look
+    function hideDropdown () {
+        dom('.dropdown-menu').style.display = 'none';
+    };
+    hideDropdown();
+    
+    //show dropdown menu
+    dom('.menu').addEventListener('click', () => {
+        dom('.dropdown-menu').style.display = 'grid';
     });
-    return checkCentered;
-};
+    
+    //close dropdown menu
+    dom('.svg-close').addEventListener('click', () => {
+        hideDropdown();
+    });
+    dom('.content').addEventListener('click', () => {
+        hideDropdown();
+    });
+    dom('.buttons').addEventListener('click', () => {
+        hideDropdown();
+    });
 
 //error letzter ready exit, error module im client, timeupdate, sse locations oder lieber post, Durcheinander, github, res.redirect()

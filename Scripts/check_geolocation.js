@@ -119,7 +119,6 @@ sse.onmessage = (res) => {
                 playerMarkersLayer.clearLayers();
                 //console.log(playerMarkersLayer);
             };
-
             playerMarkersLayer = L.layerGroup().addTo(map);
             players.forEach((player) => {
                 if (player.coordinates) {

@@ -81,6 +81,7 @@ const headerPlaycss = fs.readFileSync('./Style/header_play.css');
 
 const playhtml = fs.readFileSync('./HTML/play.html');
 const playjs = fs.readFileSync('./Scripts/play.js');
+const playcss = fs.readFileSync('./Style/play.css');
 
 //selfmade modules
 const findmodule = require('./Server_modules/find');
@@ -540,6 +541,11 @@ function sendData(res, data) {
         res.end(playjs);
     });
 
+    app.get('/play.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(playcss);
+    });
+
     app.post('/send_coordinates/:code', (req, res) => {
         const code = req.params.code;
         const id = Number(req.query.id);
@@ -596,7 +602,12 @@ function sendData(res, data) {
             let count = 0;
             setInterval(() => {
                 const timer = timers.get(code);
-                const coordinates = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate[0].coordinates : timer.runawayLocationsUpdate;
+                let coordinates;
+                if (timer.runawayLocationsUpdate) {
+                    coordinates = timer.runawayLocationsUpdate[0].coordinates;
+                } else {
+                    timer.runawayLocationsUpdate;
+                };
                 console.log(count + ': ' + coordinates);
                 count ++;
             }, 1000);

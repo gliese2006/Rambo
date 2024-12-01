@@ -1,0 +1,130 @@
+.display-time, .display-message {
+    z-index: 1;
+}
+
+/*dialog*/
+
+.div-select-host {
+    z-index: 11;
+    display: none;
+    position: absolute;
+    right: 10px;
+    left: 10px;
+    top: 10px;
+    border: none;
+    background-color: white;
+    box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.div-select-host p {
+    text-align: center;
+    margin: 0px;
+}
+
+.display-select-host {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+}
+
+select {
+    min-width: 70px;
+    border-radius: 10px;
+    font-size: 15px;
+    margin: 10px 0px 20px;
+}
+
+.div-close-dialog {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.display-instructions-dialog {
+    margin-top: 50px !important;
+    margin-bottom: 20px !important;
+}
+
+.display-message-dialog {
+    font-size: 15px;
+}
+
+.button-1 {
+    border: 1px solid black;
+    border-radius: 2px;
+    width: 90%;
+    background-color: rgb(183, 183, 183);
+    font-size: 20px;
+    padding: 5px 0px 5px 0px;
+    margin: 10px;
+    color: black;
+}
+
+/*other*/
+
+.div-waiting-time {
+    z-index: 11;
+    position: absolute;
+    top: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0.5px 5px black;
+    background-color:white;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.display-waiting-message {
+    text-align: center;
+    margin-bottom: 5px;
+    margin: 0px;
+}
+
+.display-waiting-time {
+    text-align: justify;
+    margin: 0px;
+    font-weight: bold;
+}
+
+.display-time {
+    position: absolute;
+    bottom: 25px;
+    width: 150px;
+    height: 40px;
+    border-radius: 5px;
+    box-shadow: 0px 0.5px 5px black;
+    background-color:white;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    width: 140px;
+    margin: 0px;
+    font-weight: bold;
+}
+
+.display-message {
+    position: absolute;
+    top: 10px;
+    right: 15vh;
+    left: 10vh;
+    margin: 0px;
+    text-align: center;
+    background-color:rgb(255, 125, 125);
+    box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134);
+    font-size: 15px;
+    border-radius: 5px;
+};
