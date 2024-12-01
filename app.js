@@ -154,6 +154,7 @@ function sendData(res, data) {
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
                 const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
+                console.log('runaway update');
                 console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
@@ -595,18 +596,20 @@ function sendData(res, data) {
                     timers.delete(code);
                 }, 30000);
                 //clearInterval(updateInterval);
+                //console.log(countSeconds)
                 clearInterval(runawayUpdate);
                 clearInterval(countSeconds);
+                //console.log(countSeconds)
+                console.log('clearing')
+                geolocationmodule.clearTimer(code, timers);
             }, gamejson.time);
 
             let count = 0;
             setInterval(() => {
                 const timer = timers.get(code);
                 let coordinates;
-                if (timer.runawayLocationsUpdate) {
+                if (timer && timer.runawayLocationsUpdate) {
                     coordinates = timer.runawayLocationsUpdate[0].coordinates;
-                } else {
-                    timer.runawayLocationsUpdate;
                 };
                 console.log(count + ': ' + coordinates);
                 count ++;

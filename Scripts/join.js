@@ -41,7 +41,7 @@ dom('.input-code').addEventListener('keydown', (event) => {
 });
 
 dom('.input-username').addEventListener('keydown', (event) => {
-    console.log(event);
+    //console.log(event);
     if (event.key === 'Enter') {
         submit();
     } else if (dom('.input-username').value.length > 20) {
