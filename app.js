@@ -604,7 +604,6 @@ function sendData(res, data) {
             let count = 0;
             setInterval(() => {
                 const timer = timers.get(code);
-                console.log(timer.gameOver)
                 let coordinates;
                 if (timer && timer.runawayLocationsUpdate) {
                     coordinates = timer.runawayLocationsUpdate[0].coordinates;

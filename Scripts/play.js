@@ -334,6 +334,7 @@ function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
                 } else {
                     marker.bindPopup(player.username);
                 };
+                console.log(player.username);
                 marker.addTo(seekerMarkersLayer);
             } else if (player.task === 'runaway') {
                 runawayMarkersLayer.clearLayers();
@@ -344,6 +345,7 @@ function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
                     marker.bindPopup(player.username);
                 };
                 marker.addTo(runawayMarkersLayer);
+                console.log(player.username);
             };
         };
     });
