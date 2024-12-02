@@ -157,7 +157,7 @@ function sendData(res, data) {
                 const timer = timers.get(code);
                 const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
                 console.log('runaway update');
-                console.log(players);
+                //console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
 
@@ -215,6 +215,8 @@ function sendData(res, data) {
         });
         newCoordinates.on(`exited_game/${code}`, (username) => {
                 res.write("data: " + `${JSON.stringify({exit: {username, message: ' exited the game.'}})}\n\n`);
+                const timer = timers.get(code);
+                res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
         });
         play.on(`seekersReady/${code}`, () => {
             res.write("data: " + `${JSON.stringify({checkSeekersReady: 'Y'})}\n\n`);
@@ -227,9 +229,13 @@ function sendData(res, data) {
         });
         play.on(`lost_game/${code}`, (username) => {
             res.write("data: " + `${JSON.stringify({exit: {username, message: ' was caught.'}})}\n\n`);
+            const timer = timers.get(code);
+            res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
         });
         play.on(`disqualified/${code}`, (username) => {
             res.write("data: " + `${JSON.stringify({exit: {username, message: ' was disqualified.'}})}\n\n`);
+            const timer = timers.get(code);
+            res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
         });
         play.on(`gameOver/${code}`, (message) => {
             gamejson.gameOver = true;
@@ -376,6 +382,7 @@ function sendData(res, data) {
             newCoordinates.emit(`ready/${code}`);
         } else {
             geolocationmodule.checkRunawayNumber(code, timers, play);
+            geolocationmodule.deleteRunawayUpdate(timers, code, id);
         };
         res.end();
     });
@@ -645,6 +652,8 @@ function sendData(res, data) {
             gamejson.players.splice(i, 1);
         });
 
+        geolocationmodule.deleteRunawayUpdate(timers, code, id);
+
         play.emit(`lost_game/${code}`, username);
         geolocationmodule.checkRunawayNumber(code, timers, play);
         res.end();
@@ -659,6 +668,8 @@ function sendData(res, data) {
             username = gamejson.players[i].username;
             gamejson.players.splice(i, 1);
         });
+
+        geolocationmodule.deleteRunawayUpdate(timers, code, id);
 
         play.emit(`disqualified/${code}`, username);
         geolocationmodule.checkRunawayNumber(code, timers, play);

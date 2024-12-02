@@ -5,6 +5,7 @@ module.exports.setReady = setReady;
 module.exports.findAllPlayersWithTask = findAllPlayersWithTask;
 module.exports.checkRunawayNumber = checkRunawayNumber;
 module.exports.clearTimer = clearTimer;
+module.exports.deleteRunawayUpdate = deleteRunawayUpdate;
 
 
 function saveCoordinates (gamejson, id, coordinates) {
@@ -17,9 +18,8 @@ function saveCoordinates (gamejson, id, coordinates) {
 };
 
 function findAllPlayersWithTask (players, task) {
-    return players.filter((player) => {
-        return player.task === task;
-    });
+    console.log('filtering')
+    return players.filter((player) => player.task === task);
 };
 
 function setReady (readyList, id) {
@@ -58,3 +58,12 @@ function clearTimer (code, timers) {
     timers.delete(code);
     //console.log(timers);
 }
+
+function deleteRunawayUpdate (timers, code, id) {
+    const timer = timers.get(code);
+    const i = timer.runawayLocationsUpdate.findIndex((runaway) => runaway.id == id);
+    if (i !== -1) {
+        timer.runawayLocationsUpdate.splice(i, 1);
+    };
+    timers.set(code, timer);
+};

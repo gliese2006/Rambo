@@ -329,23 +329,26 @@ function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
     players.forEach((player) => {
         if (player.coordinates) {
             if (player.task === 'seeker') {
+                console.log('seekers' + seekersCleared);
                 if (!seekersCleared) {
+                    console.log('clearing seekers')
                     seekerMarkersLayer.clearLayers();
                     seekersCleared = true;
-                }
+                };
                 const marker = L.marker(player.coordinates);
                 if (id === player.id) {
                     marker.bindPopup('You');
                 } else {
                     marker.bindPopup(player.username);
                 };
-                console.log(player.username);
                 marker.addTo(seekerMarkersLayer);
             } else if (player.task === 'runaway') {
+                console.log('runaways' + runawaysCleared);
                 if (!runawaysCleared) {
-                    seekerMarkersLayer.clearLayers();
+                    console.log('clearing runaways');
+                    runawayMarkersLayer.clearLayers();
                     runawaysCleared = true;
-                }
+                };
                 const marker = L.marker(player.coordinates);
                 if (id === player.id) {
                     marker.bindPopup('You');
@@ -353,7 +356,6 @@ function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
                     marker.bindPopup(player.username);
                 };
                 marker.addTo(runawayMarkersLayer);
-                console.log(player.username);
             };
         };
     });
