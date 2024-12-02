@@ -324,10 +324,15 @@ function createMap (gamejson, map) {
 };
 
 function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
+    let runawaysCleared = false;
+    let seekersCleared = false;
     players.forEach((player) => {
         if (player.coordinates) {
             if (player.task === 'seeker') {
-                seekerMarkersLayer.clearLayers();
+                if (!seekersCleared) {
+                    seekerMarkersLayer.clearLayers();
+                    seekersCleared = true;
+                }
                 const marker = L.marker(player.coordinates);
                 if (id === player.id) {
                     marker.bindPopup('You');
@@ -337,7 +342,10 @@ function displayPlayers (players, runawayMarkersLayer, seekerMarkersLayer) {
                 console.log(player.username);
                 marker.addTo(seekerMarkersLayer);
             } else if (player.task === 'runaway') {
-                runawayMarkersLayer.clearLayers();
+                if (!runawaysCleared) {
+                    seekerMarkersLayer.clearLayers();
+                    runawaysCleared = true;
+                }
                 const marker = L.marker(player.coordinates);
                 if (id === player.id) {
                     marker.bindPopup('You');

@@ -151,7 +151,7 @@ function sendData(res, data) {
         
         play.on(`countTime/${code}`, (countSec) => {
             if (req.query.id == 0) {
-                console.log(gamejson.players);
+                //console.log(gamejson.players);
             }
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
