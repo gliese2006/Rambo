@@ -19,6 +19,9 @@ app.use(express.static('./Style'));*/
 //app.use(cors({origin: ['http://localhost:8000', 'http://127.0.0.1:8000']}));
 const timers = new Map();
 class AddTimer {
+    
+    #runawayLocationsUpdate;
+    
     constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, runawayLocationsUpdate) {
         this.code = code;
         this.countSeconds = countSeconds;
@@ -26,7 +29,17 @@ class AddTimer {
         this.gameOver = gameOver;
         this.waitToDelete = waitToDelete;
         this.seekersReady = seekersReady;
-        this.runawayLocationsUpdate = runawayLocationsUpdate;
+
+        this.#runawayLocationsUpdate = runawayLocationsUpdate;
+    };
+
+    getRunawayLocationsUpdate() {
+        return this.#runawayLocationsUpdate;
+    };
+
+    setRunawayLocationsUpdate(newRunawayLocationsUpdate) {
+        console.log(newRunawayLocationsUpdate);
+        this.#runawayLocationsUpdate = newRunawayLocationsUpdate;
     };
 };
 
@@ -155,9 +168,9 @@ function sendData(res, data) {
             }
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
-                const players = timer && timer.runawayLocationsUpdate ? timer.runawayLocationsUpdate : undefined;
+                const players = (timer && timer.runawayLocationsUpdate) ? timer.runawayLocationsUpdate : undefined;
                 console.log('runaway update');
-                //console.log(players);
+                console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
 
@@ -189,8 +202,8 @@ function sendData(res, data) {
                 console.log(update + ': ' + code);
                 const timer = timers.get(code);
                 if (timer) {
-                    timer.runawayLocationsUpdate = geolocationmodule.findAllPlayersWithTask(gamejson.players, 'runaway');
-                    players = timer.runawayLocationsUpdate;
+                    timer.setRunawayLocationsUpdate(geolocationmodule.findAllPlayersWithTask(gamejson.players, 'runaway'));
+                    players = timer.getRunawayLocationsUpdate();
                 } else {
                     players = gamejson.players;
                 };
@@ -592,7 +605,7 @@ function sendData(res, data) {
                 countUpdates ++;
                 console.log('actual update');
                 newCoordinates.emit(`new_coordinates/${code}`, undefined, undefined, countUpdates * 90000);
-            }, 90000);
+            }, 20000);
             let waitToDelete;
             const gameOver = setTimeout(() => {
                 play.emit(`gameOver/${code}`, 'Time is up. Runaways won!');
@@ -602,8 +615,8 @@ function sendData(res, data) {
                     console.log(timers);
                 }, 30000);*/
                 //console.log(countSeconds)
-                //clearInterval(runawayUpdate);
-                //clearInterval(countSeconds);
+                clearInterval(runawayUpdate); //define inside instance
+                clearInterval(countSeconds);
                 //console.log(countSeconds)
                 console.log('clearing')
                 geolocationmodule.clearTimer(code, timers);
@@ -613,7 +626,7 @@ function sendData(res, data) {
                 const timer = timers.get(code);
                 let coordinates;
                 if (timer && timer.runawayLocationsUpdate) {
-                    coordinates = timer.runawayLocationsUpdate[0].coordinates;
+                    coordinates = timer.getRunawayLocationsUpdate()[0].coordinates;
                 };
                 console.log(count + ': ' + coordinates);
                 count ++;
