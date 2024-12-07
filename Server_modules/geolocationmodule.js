@@ -18,7 +18,6 @@ function saveCoordinates (gamejson, id, coordinates) {
 };
 
 function findAllPlayersWithTask (players, task) {
-    console.log('filtering')
     return players.filter((player) => player.task === task);
 };
 

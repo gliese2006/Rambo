@@ -392,6 +392,7 @@ function checkDistance (coordinates, players, map, gamejson, task, id, xhr, insi
     } else {
         if (map.distance(gamejson.area.coordinates, coordinates) < gamejson.area.radius) {
             alert('Well done! You are back inside the playing area.');
+            insideArea = true;
             clearTimeout(outsideTimeout);
             window.location.reload();
         };

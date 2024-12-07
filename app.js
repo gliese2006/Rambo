@@ -18,28 +18,29 @@ app.use(express.static('./Scripts'));
 app.use(express.static('./Style'));*/
 //app.use(cors({origin: ['http://localhost:8000', 'http://127.0.0.1:8000']}));
 const timers = new Map();
-class AddTimer {
+class Timer {
     
-    #runawayLocationsUpdate;
+    runawayLocationsUpdate;
     
-    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, runawayLocationsUpdate) {
+    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady) {
         this.code = code;
         this.countSeconds = countSeconds;
         this.runawayUpdate = runawayUpdate;
         this.gameOver = gameOver;
         this.waitToDelete = waitToDelete;
         this.seekersReady = seekersReady;
-
-        this.#runawayLocationsUpdate = runawayLocationsUpdate;
     };
 
     getRunawayLocationsUpdate() {
-        return this.#runawayLocationsUpdate;
+        return this.runawayLocationsUpdate;
     };
 
     setRunawayLocationsUpdate(newRunawayLocationsUpdate) {
+        console.log("new")
         console.log(newRunawayLocationsUpdate);
-        this.#runawayLocationsUpdate = newRunawayLocationsUpdate;
+        this.runawayLocationsUpdate = newRunawayLocationsUpdate;
+        console.log("saved");
+        console.log(this.runawayLocationsUpdate);
     };
 };
 
@@ -168,9 +169,9 @@ function sendData(res, data) {
             }
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
-                const players = (timer && timer.runawayLocationsUpdate) ? timer.runawayLocationsUpdate : undefined;
-                console.log('runaway update');
-                console.log(players);
+                //console.log('runaway update');
+                const players = (timer && timer.getRunawayLocationsUpdate()) ? timer.getRunawayLocationsUpdate() : undefined;
+                //console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
 
@@ -603,9 +604,9 @@ function sendData(res, data) {
             }, 1000);
             const runawayUpdate = setInterval(() => {
                 countUpdates ++;
-                console.log('actual update');
+                //console.log('actual update');
                 newCoordinates.emit(`new_coordinates/${code}`, undefined, undefined, countUpdates * 90000);
-            }, 20000);
+            }, 90000);
             let waitToDelete;
             const gameOver = setTimeout(() => {
                 play.emit(`gameOver/${code}`, 'Time is up. Runaways won!');
@@ -615,20 +616,19 @@ function sendData(res, data) {
                     console.log(timers);
                 }, 30000);*/
                 //console.log(countSeconds)
-                clearInterval(runawayUpdate); //define inside instance
-                clearInterval(countSeconds);
-                //console.log(countSeconds)
-                console.log('clearing')
+                const testIntervalClone = testInterval;
+                clearInterval(testIntervalClone);
                 geolocationmodule.clearTimer(code, timers);
             }, gamejson.time);
             let count = 0;
-            setInterval(() => {
+            const testInterval = setInterval(() => {
                 const timer = timers.get(code);
-                let coordinates;
+                let runaways;
                 if (timer && timer.runawayLocationsUpdate) {
-                    coordinates = timer.getRunawayLocationsUpdate()[0].coordinates;
+                    runaways = timer.getRunawayLocationsUpdate();
                 };
-                console.log(count + ': ' + coordinates);
+                console.log(count);
+                console.log(runaways);
                 count ++;
             }, 1000);
 
@@ -636,7 +636,7 @@ function sendData(res, data) {
             const seekersReady = setTimeout(() => {
                 play.emit(`seekersReady/${code}`);
             }, gamejson.time/12);
-            const timer = new AddTimer(code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, false);
+            const timer = new Timer(code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady);
             //const timer = new addTimer (1, 2, 3, 4, 5, 6);
             const hello = {hello1: 1, hello: 2};
             //console.log(timer.code);
