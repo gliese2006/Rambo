@@ -20,30 +20,32 @@ app.use(express.static('./Style'));*/
 const timers = new Map();
 class Timer {
     
-    runawayLocationsUpdate;
+    #runawayLocationsUpdate;
     
-    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady) {
+    constructor (code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, runawayLocationsUpdate) {
         this.code = code;
         this.countSeconds = countSeconds;
         this.runawayUpdate = runawayUpdate;
         this.gameOver = gameOver;
         this.waitToDelete = waitToDelete;
         this.seekersReady = seekersReady;
+        this.#runawayLocationsUpdate = runawayLocationsUpdate;
     };
 
     getRunawayLocationsUpdate() {
-        return this.runawayLocationsUpdate;
+        //console.log('get');
+        //console.log(this.#runawayLocationsUpdate)
+        return this.#runawayLocationsUpdate;
     };
 
     setRunawayLocationsUpdate(newRunawayLocationsUpdate) {
         console.log("new")
-        console.log(newRunawayLocationsUpdate);
-        this.runawayLocationsUpdate = newRunawayLocationsUpdate;
-        console.log("saved");
-        console.log(this.runawayLocationsUpdate);
+        //console.log(newRunawayLocationsUpdate);
+        this.#runawayLocationsUpdate = newRunawayLocationsUpdate;
+        //console.log("saved");
+        console.log(this.#runawayLocationsUpdate);
     };
 };
-
 
 //files
 const homehtml = fs.readFileSync('./HTML/home.html');
@@ -208,6 +210,7 @@ function sendData(res, data) {
                 } else {
                     players = gamejson.players;
                 };
+                timers.set(code, timer);
             };
             res.write("data: " + `${JSON.stringify({players, update})}\n\n`);
         });
@@ -620,23 +623,12 @@ function sendData(res, data) {
                 clearInterval(testIntervalClone);
                 geolocationmodule.clearTimer(code, timers);
             }, gamejson.time);
-            let count = 0;
-            const testInterval = setInterval(() => {
-                const timer = timers.get(code);
-                let runaways;
-                if (timer && timer.runawayLocationsUpdate) {
-                    runaways = timer.getRunawayLocationsUpdate();
-                };
-                console.log(count);
-                console.log(runaways);
-                count ++;
-            }, 1000);
 
             //wait seeker time
             const seekersReady = setTimeout(() => {
                 play.emit(`seekersReady/${code}`);
             }, gamejson.time/12);
-            const timer = new Timer(code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady);
+            const timer = new Timer(code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, []);
             //const timer = new addTimer (1, 2, 3, 4, 5, 6);
             const hello = {hello1: 1, hello: 2};
             //console.log(timer.code);
@@ -651,7 +643,21 @@ function sendData(res, data) {
             findmodule.writeFile(code, gamejson);
             newCoordinates.emit(`reread/${code}`);
             //console.log('set Intervals and Timeouts');
-        }; 
+
+            let count = 0;
+            const testInterval = setInterval(() => {
+                const timer = timers.get(code);
+                let runaways;
+                if (timer) {
+                    console.log(count);
+                    timer.getRunawayLocationsUpdate().forEach((item) => {
+                        console.log(item.coordinates);
+                    });
+                };
+                count ++;
+            }, 1000);
+        };
+
         res.end();
     });
 
