@@ -41,7 +41,7 @@ class Timer {
     setRunawayLocationsUpdate(newRunawayLocationsUpdate) {
         console.log("new")
         //console.log(newRunawayLocationsUpdate);
-        this.#runawayLocationsUpdate = newRunawayLocationsUpdate;
+        this.#runawayLocationsUpdate = Array.from(newRunawayLocationsUpdate);
         //console.log("saved");
         console.log(this.#runawayLocationsUpdate);
     };

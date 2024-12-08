@@ -73,7 +73,7 @@ select {
 /*other*/
 
 .div-waiting-time {
-    z-index: 11;
+    z-index: 10;
     position: absolute;
     top: 10px;
     border-radius: 5px;
