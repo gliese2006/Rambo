@@ -100,6 +100,13 @@ sse.onmessage = (res) => {
     if (response === 'canceled') {
         document.body.innerHTML = '<p> Host canceled game! </p>'
         sse.close();
+        dom('body').style.height = `${screen.height}px`;
+        dom('body').style.marginTop = '0px';
+        dom('body').style.display = 'flex';
+        dom('body').style.justifyContent = 'center';
+        dom('body').style.alignItems = 'center';
+        dom('.div-cancel-message').style.fontSize = '25px';
+        dom('.div-cancel-message').style.textAlign = 'center';
         setTimeout(() => {
             window.location.replace('/');
         }, 2000);

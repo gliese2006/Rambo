@@ -36,9 +36,7 @@ function checkRunawayNumber (code, timers, play) {
     const runaway = gamejson.players.find((player) => {
         return player.task === 'runaway';
     });
-    console.log(runaway);
     if (!runaway) {
-        console.log('canceling');
         clearTimer(code, timers);
         play.emit(`gameOver/${code}`, 'All runaways caught. Seekers won!');
     };
@@ -62,9 +60,12 @@ function clearTimer (code, timers) {
 
 function deleteRunawayUpdate (timers, code, id) {
     const timer = timers.get(code);
-    const i = timer.runawayLocationsUpdate.findIndex((runaway) => runaway.id == id);
+    runawayLocationsUpdate = timer.getRunawayLocationsUpdate();
+    const i = runawayLocationsUpdate.findIndex((runaway) => {
+        return runaway.id == id
+    });
     if (i !== -1) {
-        timer.runawayLocationsUpdate.splice(i, 1);
+        runawayLocationsUpdate.splice(i, 1);
     };
-    timers.set(code, timer);
+    timer.setRunawayLocationsUpdate(runawayLocationsUpdate);
 };

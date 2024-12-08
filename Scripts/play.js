@@ -66,7 +66,7 @@ sse.onmessage = function (res) {
             window.location.reload();
         };
     } else if (response.gameover) {
-        //sse.close();
+        sse.close();
         dom('body').style.height = `${screen.height}px`;
         dom('body').style.marginTop = '0px';
         dom('body').style.display = 'flex';

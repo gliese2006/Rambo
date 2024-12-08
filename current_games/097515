@@ -1,0 +1,1 @@
+{"code":"097515","players":[{"username":"David","id":0,"task":"seeker","coordinates":[47.362893,8.4645022]},{"username":"Noemi","id":1,"task":"runaway","coordinates":[47.3628884,8.4644988]}],"area":{"coordinates":[47.362893,8.4645022],"radius":"1000"},"time":200000,"readyForInstructions":true,"gameRunning":true,"checkSeekersReady":true,"gameOver":true}
