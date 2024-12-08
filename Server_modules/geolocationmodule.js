@@ -60,7 +60,7 @@ function clearTimer (code, timers) {
 
 function deleteRunawayUpdate (timers, code, id) {
     const timer = timers.get(code);
-    runawayLocationsUpdate = timer.getRunawayLocationsUpdate();
+    const runawayLocationsUpdate = timer.getRunawayLocationsUpdate();
     const i = runawayLocationsUpdate.findIndex((runaway) => {
         return runaway.id == id
     });

@@ -29,7 +29,7 @@ class Timer {
         this.gameOver = gameOver;
         this.waitToDelete = waitToDelete;
         this.seekersReady = seekersReady;
-        this.#runawayLocationsUpdate = runawayLocationsUpdate;
+        this.#runawayLocationsUpdate = Array.from(runawayLocationsUpdate);
     };
 
     getRunawayLocationsUpdate() {
@@ -46,6 +46,35 @@ class Timer {
         console.log(this.#runawayLocationsUpdate);
     };
 };
+
+
+// run `node index.js` in the terminal
+
+class Test {
+    #locations;
+    setLocation(loc) {
+        this.#locations = Array.from(loc);
+    }
+    print() {
+        console.log(this.#locations);
+    }
+    getLocation() {
+        return Array.from(this.#locations);
+    }
+}
+
+const test = new Test();
+
+const loc = [10, 20];
+
+test.setLocation(loc);
+const got = test.getLocation(loc);
+console.log(got);
+test.print();
+
+got[0] = 1000;
+
+test.print();
 
 //files
 const homehtml = fs.readFileSync('./HTML/home.html');
@@ -232,7 +261,7 @@ function sendData(res, data) {
         newCoordinates.on(`exited_game/${code}`, (username) => {
                 res.write("data: " + `${JSON.stringify({exit: {username, message: ' exited the game.'}})}\n\n`);
                 const timer = timers.get(code);
-                res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
+                res.write("data: " + `${JSON.stringify({players: timer.getRunawayLocationsUpdate(), update: false})}\n\n`);
         });
         play.on(`seekersReady/${code}`, () => {
             res.write("data: " + `${JSON.stringify({checkSeekersReady: 'Y'})}\n\n`);
@@ -246,12 +275,12 @@ function sendData(res, data) {
         play.on(`lost_game/${code}`, (username) => {
             res.write("data: " + `${JSON.stringify({exit: {username, message: ' was caught.'}})}\n\n`);
             const timer = timers.get(code);
-            res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
+            res.write("data: " + `${JSON.stringify({players: timer.getRunawayLocationsUpdate(), update: true})}\n\n`);
         });
         play.on(`disqualified/${code}`, (username) => {
             res.write("data: " + `${JSON.stringify({exit: {username, message: ' was disqualified.'}})}\n\n`);
             const timer = timers.get(code);
-            res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
+            res.write("data: " + `${JSON.stringify({players: timer.getRunawayLocationsUpdate(), update: true})}\n\n`);
         });
         play.on(`gameOver/${code}`, (message) => {
             console.log(message);
