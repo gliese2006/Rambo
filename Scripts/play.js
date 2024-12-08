@@ -120,7 +120,7 @@ sse.onmessage = function (res) {
 
                 displayWaitTime((Math.round(gamejson.time / 12) - timeUpdate) / 1000, dom('.display-waiting-time'));
             } else {
-                console.log('timeupdate');
+                //console.log('timeupdate');
                 timeUpdate = response.update;
                 const updatedTime = (gamejson.time - timeUpdate)/1000;
                 displayTime(updatedTime, dom('.display-time'));

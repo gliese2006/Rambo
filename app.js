@@ -35,7 +35,7 @@ class Timer {
     getRunawayLocationsUpdate() {
         //console.log('get');
         //console.log(this.#runawayLocationsUpdate)
-        return this.#runawayLocationsUpdate;
+        return Array.from(this.#runawayLocationsUpdate);
     };
 
     setRunawayLocationsUpdate(newRunawayLocationsUpdate) {
@@ -172,7 +172,7 @@ function sendData(res, data) {
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
                 //console.log('runaway update');
-                const players = (timer && timer.getRunawayLocationsUpdate()) ? timer.getRunawayLocationsUpdate() : undefined;
+                const players = timer ? timer.getRunawayLocationsUpdate() : undefined;
                 //console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
                 firstTimeUpdate = true;
@@ -210,7 +210,6 @@ function sendData(res, data) {
                 } else {
                     players = gamejson.players;
                 };
-                timers.set(code, timer);
             };
             res.write("data: " + `${JSON.stringify({players, update})}\n\n`);
         });
@@ -255,6 +254,7 @@ function sendData(res, data) {
             res.write("data: " + `${JSON.stringify({players: timer.runawayLocationsUpdate, update: true})}\n\n`);
         });
         play.on(`gameOver/${code}`, (message) => {
+            console.log(message);
             gamejson.gameOver = true;
             findmodule.writeFile(code, gamejson);
             //newCoordinates.emit(`reread/${code}`);
@@ -647,11 +647,10 @@ function sendData(res, data) {
             let count = 0;
             const testInterval = setInterval(() => {
                 const timer = timers.get(code);
-                let runaways;
                 if (timer) {
                     console.log(count);
-                    timer.getRunawayLocationsUpdate().forEach((item) => {
-                        console.log(item.coordinates);
+                    timer.getRunawayLocationsUpdate().forEach((player) => {
+                        console.log(player.coordinates);
                     });
                 };
                 count ++;

@@ -36,7 +36,9 @@ function checkRunawayNumber (code, timers, play) {
     const runaway = gamejson.players.find((player) => {
         return player.task === 'runaway';
     });
+    console.log(runaway);
     if (!runaway) {
+        console.log('canceling');
         clearTimer(code, timers);
         play.emit(`gameOver/${code}`, 'All runaways caught. Seekers won!');
     };
