@@ -12,7 +12,7 @@
     left: 10px;
     top: 10px;
     border: none;
-    background-color: white;
+    background-color: rgb(73, 73, 73);
     box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134);
     flex-direction: column;
     justify-content: center;
@@ -78,7 +78,7 @@ select {
     top: 10px;
     border-radius: 5px;
     box-shadow: 0px 0.5px 5px black;
-    background-color:white;
+    background-color: rgb(73, 73, 73);
     border: none;
     display: flex;
     flex-direction: column;
@@ -105,7 +105,7 @@ select {
     height: 40px;
     border-radius: 5px;
     box-shadow: 0px 0.5px 5px black;
-    background-color:white;
+    background-color: rgb(73, 73, 73);
     border: none;
     display: flex;
     justify-content: center;

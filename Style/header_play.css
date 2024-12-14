@@ -1,10 +1,11 @@
 body {
     margin: 0px;
-    color: black;
+    background-color: rgb(73, 73, 73);
+    color: white;
     font-family: "Kumbh Sans", sans-serif;
     font-weight: 500;
     border-radius: 0px;
-    background-color: rgb(232, 232, 232);
+    background-color: rgb(73, 73, 73);
 }
 
 .menu {
@@ -15,7 +16,8 @@ body {
     align-items: center;
     cursor: pointer;
     z-index: 10;
-    background-color: rgb(183, 183, 183);
+    background-color: black;
+    /*background-color: rgb(183, 183, 183);*/
     position: fixed;
     top: 10px;
     right: 10px;
@@ -25,7 +27,7 @@ body {
 
 .dropdown-menu {
     z-index: 11;
-    background-color: rgb(183, 183, 183);
+    background-color: rgb(73, 73, 73);
     position: fixed;
     top: 0px;
     right: 0px;

@@ -50,6 +50,7 @@ select {
 
 .display-players {
     background-color: white;
+    color: black;
     width: 280px;
     max-height: 800px;
     box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134) inset;

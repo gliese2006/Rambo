@@ -641,8 +641,8 @@ function sendData(res, data) {
         const code = req.params.code;
         const id = Number(req.query.id);
         const place = req.query.place;
-        /*let coordinates = req.body.coordinates;
-        if(req.query.task === "runaway"){
+        let coordinates = req.body.coordinates;
+        /*if(req.query.task === "runaway"){
             coordinates[0] = coordinates[0] + 0.001 + 0.001*Math.random();
             console.log('coordinates');
             console.log(coordinates);
