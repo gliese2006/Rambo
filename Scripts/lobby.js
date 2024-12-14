@@ -30,10 +30,10 @@ function addPlayer (players) {
     htmlplayers = '';
     players.forEach((player) => {
             if (player.id === id) {
-                htmlplayers += '<p class="player"> You </p>'
+                htmlplayers += `<p class="player" style="background-color: ${player.color}"> You </p>`;
                 dom('.display-welcome').innerHTML = `Welcome ${player.username}!`;
             } else {
-                htmlplayers += '<p class="player">' + player.username + '</p>';
+                htmlplayers += `<p class="player" style="background-color: ${player.color}">` + player.username + '</p>';
             };
     });
     displayPlayers();

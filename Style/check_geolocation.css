@@ -11,6 +11,7 @@
     border-radius: 20px;
     box-shadow: 0px 0.5px 5px black;
     background-color: coral;
+    color: black;
     border: none;
 }
 
@@ -25,4 +26,11 @@
     box-shadow: 0.5px 0.5px 5px rgb(134, 134, 134);
     font-size: 15px;
     border-radius: 5px;
+    z-index: 10;
 };
+
+.runner-icon{
+    background-color: black !important;
+    border: transparent;
+    filter: drop-shadow(10px 10px 10px black);
+}

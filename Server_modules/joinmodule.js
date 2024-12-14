@@ -5,7 +5,7 @@ const findmodule = require('./find');
 module.exports.addNewPlayer = addNewPlayer;
 
 
-function addNewPlayer(code, username) {
+function addNewPlayer(code, username, colors, createRandomColor) {
     const newgamesjson = JSON.parse(fs.readFileSync('./current_games/new_games.json'));
     let returnObject;
     let gameIndex = findmodule.findGame(code, newgamesjson);
@@ -20,9 +20,13 @@ function addNewPlayer(code, username) {
         });
 
         if (!checkSameName) {
+            const id = newgamesjson[gameIndex].players[newgamesjson[gameIndex].players.length - 1].id + 1;
+            const color = colors[id] ? colors[id] : createRandomColor();
+
             let newPlayer = {
                 username,
-                id: newgamesjson[gameIndex].players[newgamesjson[gameIndex].players.length - 1].id + 1
+                id,
+                color
             };
 
             newgamesjson[gameIndex].players.push(newPlayer)

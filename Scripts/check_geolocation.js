@@ -8,6 +8,48 @@ const search = new URLSearchParams(window.location.search);
 const id = Number(search.get('id'));
 const stat = search.get('status');
 const task = search.get('task');
+function runnerIcon (color) {
+    return `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+    width="64px" height="61px" viewBox="0 0 1280.000000 1226.000000"
+    preserveAspectRatio="xMidYMid meet">
+    <g transform="translate(0.000000,1226.000000) scale(0.100000,-0.100000)"
+    fill="${color}" stroke="none">
+    <path d="M9505 12249 c-217 -31 -426 -134 -588 -288 -132 -126 -218 -259 -276
+    -424 -118 -339 -59 -717 160 -1006 279 -371 772 -519 1211 -366 399 140 681
+    502 716 921 27 327 -83 631 -313 859 -239 238 -580 352 -910 304z"/>
+    <path d="M5795 10390 c-235 -6 -266 -14 -381 -89 -72 -46 -14 19 -1062 -1188
+    -473 -545 -881 -1012 -905 -1038 -89 -93 -139 -223 -140 -364 0 -188 86 -350
+    244 -455 82 -54 159 -78 269 -83 138 -7 245 24 356 105 22 16 429 478 903
+    1026 l862 996 486 0 485 0 -54 -62 c-30 -35 -848 -983 -1817 -2108 -970 -1125
+    -1779 -2061 -1797 -2080 l-34 -35 -1323 0 c-1222 0 -1326 -1 -1377 -17 -262
+    -82 -447 -282 -496 -535 -29 -155 -10 -291 63 -443 38 -80 59 -109 132 -181
+    73 -73 101 -93 181 -132 52 -25 120 -51 150 -59 77 -18 3219 -18 3352 0 181
+    26 336 80 462 162 57 38 156 143 625 665 306 341 637 710 737 821 l180 201
+    680 -660 c373 -362 748 -727 832 -809 l154 -150 -61 -271 c-33 -150 -98 -441
+    -145 -647 -515 -2281 -486 -2147 -486 -2262 0 -155 33 -265 116 -390 122 -184
+    353 -308 573 -308 74 0 190 22 259 49 182 72 346 248 405 436 9 28 61 250 116
+    495 55 245 154 687 220 983 312 1389 364 1621 426 1897 36 162 80 351 97 420
+    29 112 32 140 32 275 1 175 -17 256 -87 390 -40 77 -74 112 -799 840 l-758
+    761 794 919 c437 506 799 921 804 923 5 1 239 -232 521 -518 542 -549 593
+    -594 722 -640 89 -31 233 -38 319 -16 94 24 174 64 265 134 48 37 424 408 945
+    934 797 805 868 878 898 941 155 318 2 678 -338 793 -40 14 -84 19 -160 19
+    -119 0 -200 -22 -287 -78 -28 -18 -364 -343 -753 -730 l-703 -699 -856 855
+    c-471 470 -876 868 -901 884 -69 46 -141 80 -222 105 l-73 22 -1220 1 c-671 1
+    -1314 -1 -1430 -5z"/>
+    </g>
+    </svg>`
+};
+
+function glassIcon (color) {
+    return `
+    <svg width="64px" height="64px" viewBox="0 0 8.4666669 8.4666669" id="svg8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg">
+    <defs id="defs2"/>
+    <g id="layer1" transform="translate(0,-288.53332)">
+    <path d="M 11.996094 1.0039062 C 5.9328116 1.0039062 0.99610131 5.9386839 0.99609375 12.001953 C 0.99610131 18.06526 5.9328116 23.001953 11.996094 23.001953 C 14.670102 23.001953 17.122499 22.040573 19.03125 20.447266 L 29.291016 30.708984 C 30.235897 31.653866 31.653866 30.235898 30.708984 29.291016 L 20.447266 19.029297 C 22.03584 17.121901 22.994137 14.671545 22.994141 12.001953 C 22.994133 5.9386839 18.059376 1.0039062 11.996094 1.0039062 z M 11.996094 3.0039062 C 16.978497 3.003944 20.994135 7.0195531 20.994141 12.001953 C 20.994135 16.984391 16.978497 21.001953 11.996094 21.001953 C 7.0136911 21.001953 2.9960999 16.984391 2.9960938 12.001953 C 2.9960999 7.0195531 7.0136911 3.003944 11.996094 3.0039062 z " id="path935" style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:${color};fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.99999988;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" transform="matrix(0.26458333,0,0,0.26458333,0,288.53332)"/>
+    </g>
+    </svg>
+    `;
+};
 
 const sse = new EventSource(`/get_geolocations/${code}?id=${id}&task=${task}&place=check_geolocation`);
 
@@ -44,7 +86,6 @@ setInterval(() => {
         xhr.send(data);
         if (!stat) {
         dom('.display-message').style.padding = '5px';
-        dom('.display-message').innerHTML = 'Geolocation successful! Please check whether your real position matches the one on the map.'
         };
 
         if (checkCentered) {
@@ -98,7 +139,7 @@ const startingArea = L.circle(center, {
 sse.onmessage = (res) => {
     const response = JSON.parse(res.data);
     if (response === 'canceled') {
-        document.body.innerHTML = '<p> Host canceled game! </p>'
+        document.body.innerHTML = '<div class="div-cancel-message"><p> Host canceled game! </p></div>'
         sse.close();
         dom('body').style.height = `${screen.height}px`;
         dom('body').style.marginTop = '0px';
@@ -129,13 +170,27 @@ sse.onmessage = (res) => {
             playerMarkersLayer = L.layerGroup().addTo(map);
             players.forEach((player) => {
                 if (player.coordinates) {
-                    const marker = L.marker(player.coordinates);
-                    if (id === player.id) {
-                        marker.bindPopup('You');
+                    if (player.task === 'runaway') {
+                        const runner =  L.divIcon({html: runnerIcon(player.color), iconSize: [100], className: 'runner-icon', iconAnchor: [32, 30.5]});
+                        
+                        const marker = L.marker(player.coordinates, {icon: runner});
+                        if (id === player.id) {
+                            marker.bindPopup('You');
+                        } else {
+                            marker.bindPopup(player.username);
+                        };
+                        marker.addTo(playerMarkersLayer);
                     } else {
-                        marker.bindPopup(player.username);
-                    };
-                    marker.addTo(playerMarkersLayer);
+                        const glass =  L.divIcon({html: glassIcon(player.color), className: 'glass-icon', iconAnchor: [22.6, 22.6]});
+
+                        const marker = L.marker(player.coordinates, {icon: glass});
+                        if (id === player.id) {
+                            marker.bindPopup('You');
+                        } else {
+                            marker.bindPopup(player.username);
+                        };
+                        marker.addTo(playerMarkersLayer);
+                    }
                 };
             });
          
@@ -143,21 +198,18 @@ sse.onmessage = (res) => {
             //check ready
             if (!stat) {
             if (map.distance(center, coordinates) <= 20) {
-                if (checkZone !== 2) {
-                    dom('.display-message').innerHTML = '';
-                    dom('.div-3').innerHTML = '<button class="button-1"> Ready </button>';
-                    dom('.button-1').addEventListener('click', () => {
-                        window.location.replace(`${window.location}&status=ready`);
-                    });
-                    checkZone = 2;
-                };
+                dom('.display-message').innerHTML = '';
+                dom('.div-3').innerHTML = '<button class="button-1"> Ready </button>';
+                dom('.button-1').addEventListener('click', () => {
+                    window.location.replace(`${window.location}&status=ready`);
+                });
+                checkZone = 'inside';
+                dom('.display-message').innerHTML = 'Geolocation successful! Please check whether your real position matches the one on the map.';
             } else {
-                if (checkZone !== 1) {
-                    dom('.display-message').innerHTML = 'Geolocation successful! To start the game, please move inside the blue zone on the map. If you already are inside the blue zone and therefore geolocation does not work, please exit.';
-                    dom('.display-message').style.padding = '5px';
-                    dom('.div-3').innerHTML = '';
-                    checkZone = 1;
-                };
+                dom('.display-message').innerHTML = 'Geolocation successful! To start the game, please move inside the blue zone on the map. If you already are inside the blue zone and therefore geolocation does not work, please exit.';
+                dom('.display-message').style.padding = '5px';
+                dom('.div-3').innerHTML = '';
+                checkZone = 'outside';
             };
             };
         };

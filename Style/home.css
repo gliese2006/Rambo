@@ -5,11 +5,11 @@
 }
 
 .button-new, .button-join {
-    border: 1px solid black;
+    border: none;
     background-color: rgb(183, 183, 183);
     height: 30px;
     width: 150px;
     margin: 5px;
     color: black;
-    border-radius: 3px;
+    border-radius: 15px;
 }

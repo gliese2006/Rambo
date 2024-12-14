@@ -17,6 +17,29 @@ app.use(express.json());
 app.use(express.static('./Scripts'));
 app.use(express.static('./Style'));*/
 //app.use(cors({origin: ['http://localhost:8000', 'http://127.0.0.1:8000']}));
+const colors = [
+    '#FFDE59', '#6495ED', '#98E27B', '#C34D4E', '#D777CC', '#79E3BE', '#E3AE79', '#C079E3'
+]
+function createRandomColor () {
+    const r = Math.random();
+    const g = Math.random();
+    const b = Math.random();
+
+    function convert (num) {
+        const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+        const decimal = num*255;
+        let first = Math.round((decimal)/16-0.5);
+        let second = Math.round((decimal)%16);
+        first = numbers[first];
+        second = numbers[second];
+        return first + second;
+    };
+
+    const color = `#${convert(r)}${convert(g)}${convert(b)}`;
+
+    return color;
+};
+
 const timers = new Map();
 class Timer {
     
@@ -34,32 +57,43 @@ class Timer {
 
     getRunawayLocationsUpdate() {
         //console.log('get');
-        //console.log(this.#runawayLocationsUpdate)
-        return Array.from(this.#runawayLocationsUpdate);
+        /*if (this.#runawayLocationsUpdate[0]) {
+            this.#runawayLocationsUpdate.forEach((update) => {
+                update.forEach((player) => {
+                    console.log(player.coordinates);
+                });
+            });
+        }*/
+        //return Array.from(this.#runawayLocationsUpdate);
+        this.#runawayLocationsUpdate.forEach((player) => {
+            console.log(player.coordinates);
+        });
+        return JSON.parse(JSON.stringify(this.#runawayLocationsUpdate));
     };
 
     setRunawayLocationsUpdate(newRunawayLocationsUpdate) {
         console.log("new")
         //console.log(newRunawayLocationsUpdate);
-        this.#runawayLocationsUpdate = Array.from(newRunawayLocationsUpdate);
+        //this.#runawayLocationsUpdate.push(JSON.parse(JSON.stringify(newRunawayLocationsUpdate)));
+        this.#runawayLocationsUpdate = (JSON.parse(JSON.stringify(newRunawayLocationsUpdate)));
         //console.log("saved");
-        console.log(this.#runawayLocationsUpdate);
+        console.log(this.#runawayLocationsUpdate[0]);
     };
 };
 
 
 // run `node index.js` in the terminal
 
-class Test {
+/*class Test {
     #locations;
     setLocation(loc) {
-        this.#locations = Array.from(loc);
+        this.#locations = loc;
     }
     print() {
         console.log(this.#locations);
     }
     getLocation() {
-        return Array.from(this.#locations);
+        return this.#locations;
     }
 }
 
@@ -74,7 +108,7 @@ test.print();
 
 got[0] = 1000;
 
-test.print();
+test.print();*/
 
 //files
 const homehtml = fs.readFileSync('./HTML/home.html');
@@ -200,7 +234,7 @@ function sendData(res, data) {
             }
             if (!firstTimeUpdate) {
                 const timer = timers.get(code);
-                //console.log('runaway update');
+                console.log('runaway update');
                 const players = timer ? timer.getRunawayLocationsUpdate() : undefined;
                 //console.log(players);
                 res.write("data: " + `${JSON.stringify({players, update: countSec * 1000})}\n\n`);
@@ -223,6 +257,7 @@ function sendData(res, data) {
         });
         newCoordinates.on(`new_coordinates/${code}`, (coordinates, id, update) => {
             let players;
+
             if (typeof id === 'number') {
                 if (req.query.task === 'runaway') {
                     players = geolocationmodule.saveCoordinates(gamejson, id, coordinates);
@@ -338,7 +373,7 @@ function sendData(res, data) {
     app.post('/create_new_game', (req, res) => {
         const username = req.body.username;
         const code = newmodule.createCode();
-        newmodule.createNewGame(code, username)
+        newmodule.createNewGame(code, username, colors)
         res.write(JSON.stringify(`/lobby/${code}?id=0`));
         res.end();
     });
@@ -360,7 +395,7 @@ function sendData(res, data) {
     app.post('/add_new_player', (req, res) => {
         const code = req.body.code;
         const username = req.body.username;
-        const responseNewPlayer = joinmodule.addNewPlayer(code, username);
+        const responseNewPlayer = joinmodule.addNewPlayer(code, username, colors, createRandomColor);
         if (responseNewPlayer.check) {
             newPlayerEmitter.emit(`newPlayer/${code}`);
         };
@@ -606,8 +641,13 @@ function sendData(res, data) {
         const code = req.params.code;
         const id = Number(req.query.id);
         const place = req.query.place;
-        const coordinates = req.body.coordinates;
-        const update = place === 'check_geolocation';
+        /*let coordinates = req.body.coordinates;
+        if(req.query.task === "runaway"){
+            coordinates[0] = coordinates[0] + 0.001 + 0.001*Math.random();
+            console.log('coordinates');
+            console.log(coordinates);
+        };*/
+        const update = (place === 'check_geolocation');
         newCoordinates.emit(`new_coordinates/${code}`, coordinates, id, update)
         res.end();
     });
@@ -677,10 +717,13 @@ function sendData(res, data) {
             const testInterval = setInterval(() => {
                 const timer = timers.get(code);
                 if (timer) {
+                    //timer.printRunawayLocations();
                     console.log(count);
-                    timer.getRunawayLocationsUpdate().forEach((player) => {
-                        console.log(player.coordinates);
-                    });
+                    timer.getRunawayLocationsUpdate()/*.forEach((player) => {
+                        if (player.task === 'runaway') {
+                            console.log(player.coordinates);
+                        };
+                    });*/
                 };
                 count ++;
             }, 1000);

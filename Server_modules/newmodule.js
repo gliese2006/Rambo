@@ -13,14 +13,15 @@ function createCode () {
     return code;
 };
 
-function createNewGame (code, username) {
+function createNewGame (code, username, colors) {
     const newgamesjson = JSON.parse(fs.readFileSync('./current_games/new_games.json'));
     const newGameObject = {
         code,
         players: [
             {
                 username,
-                id: 0
+                id: 0,
+                color: colors[0]
             }
         ]
     }

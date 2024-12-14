@@ -22,17 +22,17 @@ function createPlayerhtml () {
     let playershtml;
     players.forEach((player) => {
         if (playershtml) {
-            playershtml += createHTML(player.username);
+            playershtml += createHTML(player.username, player.color);
         } else {
-            playershtml = `<div class="display-player"><label>You</label><p>Seeker</p></div>`;
+            playershtml = `<div class="display-player" style="background-color: ${player.color}"><label>You</label><p>Seeker</p></div>`;
         }   
     });
 
     displayPlayers(playershtml);
 };
 
-function createHTML (playerUsername) {
-    return `<div class="display-player"><label>${playerUsername}</label> <select id="${playerUsername}"><option></option><option value="seeker">Seeker</option><option value="runaway">Runaway</option></select></div>`;
+function createHTML (playerUsername, playerColor) {
+    return `<div class="display-player" style="background-color: ${playerColor}"><label>${playerUsername}</label> <select id="${playerUsername}"><option></option><option value="seeker">Seeker</option><option value="runaway">Runaway</option></select></div>`;
 };
 
 //send input
