@@ -510,5 +510,3 @@ dom('.div-find-position').addEventListener('click', () => {
     dom('.buttons').addEventListener('click', () => {
         hideDropdown();
     });
-
-//error letzter ready exit, error module im client, timeupdate, sse locations oder lieber post, Durcheinander, github, res.redirect()

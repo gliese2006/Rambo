@@ -56,15 +56,6 @@ class Timer {
     };
 
     getRunawayLocationsUpdate() {
-        //console.log('get');
-        /*if (this.#runawayLocationsUpdate[0]) {
-            this.#runawayLocationsUpdate.forEach((update) => {
-                update.forEach((player) => {
-                    console.log(player.coordinates);
-                });
-            });
-        }*/
-        //return Array.from(this.#runawayLocationsUpdate);
         this.#runawayLocationsUpdate.forEach((player) => {
             console.log(player.coordinates);
         });
@@ -77,38 +68,9 @@ class Timer {
         //this.#runawayLocationsUpdate.push(JSON.parse(JSON.stringify(newRunawayLocationsUpdate)));
         this.#runawayLocationsUpdate = (JSON.parse(JSON.stringify(newRunawayLocationsUpdate)));
         //console.log("saved");
-        console.log(this.#runawayLocationsUpdate[0]);
+        //console.log(this.#runawayLocationsUpdate[0]);
     };
 };
-
-
-// run `node index.js` in the terminal
-
-/*class Test {
-    #locations;
-    setLocation(loc) {
-        this.#locations = loc;
-    }
-    print() {
-        console.log(this.#locations);
-    }
-    getLocation() {
-        return this.#locations;
-    }
-}
-
-const test = new Test();
-
-const loc = [10, 20];
-
-test.setLocation(loc);
-const got = test.getLocation(loc);
-console.log(got);
-test.print();
-
-got[0] = 1000;
-
-test.print();*/
 
 //files
 const homehtml = fs.readFileSync('./HTML/home.html');
@@ -116,7 +78,8 @@ const homecss = fs.readFileSync('./Style/home.css');
 const headerjs = fs.readFileSync('./Scripts/home_header.js');
 const headercss = fs.readFileSync('./Style/header.css');
 
-const instructionshtml = fs.readFileSync('./HTML/instructions.html')
+const instructionshtml = fs.readFileSync('./HTML/instructions.html');
+const instructionscss = fs.readFileSync('./Style/instructions.css');
 
 const newhtml = fs.readFileSync('./HTML/new.html');
 const newjs = fs.readFileSync('./Scripts/new.js');
@@ -354,7 +317,12 @@ function sendData(res, data) {
 //request on instructions
     app.get('/instructions', (req, res) => {
         res.end(instructionshtml)
-    })
+    });
+
+    app.get('/instructions.css', (req, res) => {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(instructionscss);
+    });
 
 //requests on new
     app.get('/new', (req, res) => {
@@ -521,7 +489,6 @@ function sendData(res, data) {
         setareamodule.addArea(code, coordinates, radius);
         res.end(JSON.stringify(`/set_tasks/${code}`));
     });
-    //redirect players to new sse, write current game file, redirect admin to set_area
 
 //request on set_tasks
     app.get('/set_tasks/:code', (req, res) => {
@@ -698,35 +665,26 @@ function sendData(res, data) {
                 play.emit(`seekersReady/${code}`);
             }, gamejson.time/12);
             const timer = new Timer(code, countSeconds, runawayUpdate, gameOver, waitToDelete, seekersReady, []);
-            //const timer = new addTimer (1, 2, 3, 4, 5, 6);
             const hello = {hello1: 1, hello: 2};
-            //console.log(timer.code);
-            //timers.push('hello2');
-            //timers.push(hello);
             timers.set(code, timer);
-            //timers.push('hello');
-            //console.log(timers[1]);
-            //console.log(timers[0].code);
-            //console.log(timers[0].countSeconds);
             gamejson.gameRunning = true;
             findmodule.writeFile(code, gamejson);
             newCoordinates.emit(`reread/${code}`);
-            //console.log('set Intervals and Timeouts');
 
             let count = 0;
-            const testInterval = setInterval(() => {
+            /*const testInterval = setInterval(() => {
                 const timer = timers.get(code);
                 if (timer) {
                     //timer.printRunawayLocations();
                     console.log(count);
-                    timer.getRunawayLocationsUpdate()/*.forEach((player) => {
+                    timer.getRunawayLocationsUpdate().forEach((player) => {
                         if (player.task === 'runaway') {
                             console.log(player.coordinates);
                         };
-                    });*/
+                    });
                 };
                 count ++;
-            }, 1000);
+            }, 1000);*/
         };
 
         res.end();
@@ -784,30 +742,3 @@ function sendData(res, data) {
 app.listen(8000, () => {
     console.log('Server listening on port 8000!')
 })
-
-/*
-function hello() {
-    setTimeout(() => {
-        console.log('hello')
-    }, 1000);
-}
-
-hello()
-console.log('goodbye')
-
-function hello2() {
-    return new Promise((resolve) =>  {
-        setTimeout(() => {
-            console.log('hello')
-            resolve()
-        }, 1000);
-    }
-}
-
-
-await hello2()
-
-
-mime type error join
-static files
-*/
