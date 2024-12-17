@@ -77,6 +77,7 @@ const homehtml = fs.readFileSync('./HTML/home.html');
 const homecss = fs.readFileSync('./Style/home.css');
 const headerjs = fs.readFileSync('./Scripts/home_header.js');
 const headercss = fs.readFileSync('./Style/header.css');
+const imgScrshot = fs.readFileSync('./HTML/Images/Rambo_Screenshot.jpg');
 
 const instructionshtml = fs.readFileSync('./HTML/instructions.html');
 const instructionscss = fs.readFileSync('./Style/instructions.css');
@@ -312,6 +313,10 @@ function sendData(res, data) {
     app.get('/header.css', (req, res) => {
         res.setHeader('Content-Type', 'text/css');
         res.end(headercss);
+    });
+
+    app.get('/Rambo_Screenshot', (req, res) => {
+        res.end(imgScrshot);
     });
 
 //request on instructions

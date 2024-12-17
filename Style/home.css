@@ -13,3 +13,26 @@
     color: black;
     border-radius: 15px;
 }
+
+.display-ad {
+    margin: 10px;
+    box-shadow: 2px 2px 7px black;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: center;
+    border-radius: 5px;
+    background-color: rgb(105, 104, 104);
+}
+
+img {
+    width: 100%;
+    height: auto;
+    margin: 10px;
+    box-shadow: 0.5px 0.5px 3px black;
+    border-radius: 5px;
+}
+
+.message-ad {
+    margin: 10px 20px;
+    text-align: center;
+}
