@@ -1,5 +1,4 @@
 .content {
-    height: 85vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -8,6 +7,7 @@
     margin-left: 20px;
     margin-right: 20px;
     line-height: 150%;
+    padding-bottom: 20px;
 }
 
 .message-attention {
@@ -25,5 +25,4 @@
     width: 300px;
     padding: 5px 0px 5px 0px;
     color: black;
-    margin-bottom: 100px;
 }
